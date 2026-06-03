@@ -106,17 +106,16 @@ function updateActiveButton(activeTabId) {
 
     // Mapear IDs de tab-content a IDs de botones
     const tabToBtnMap = {
-        'list-subidas': 'btn-subidas',
-        'list-labs': 'btn-labs',
-        'list-actividades': 'btn-actividades',
-        'list-talleres': 'btn-talleres',
-        'list-material': 'btn-material',
-        'list-formularios': 'btn-formularios',
         'list-silabo': 'btn-silabo',
+        'list-fundamentos': 'btn-fundamentos',
+        'list-labs': 'btn-labs',
+        'list-pruebas': 'btn-pruebas',
+        'list-tareas': 'btn-tareas',
+        'list-grupales': 'btn-grupales',
         'list-mapas': 'btn-mapas',
+        'list-apoyo': 'btn-apoyo',
         'list-info': 'btn-info',
-        'list-centro': 'btn-centro',
-        'list-horario': 'btn-horario',
+        'list-subidas': 'btn-subidas'
     };
 
     const btnId = tabToBtnMap[activeTabId];

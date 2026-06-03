@@ -30,19 +30,33 @@
         <!-- Carátula -->
         <div class="menu-section">
             <button class="tab-btn" id="btn-caratula" onclick="mostrarPortada('FÍSICA APLICADA', 'PORTAFOLIO ESTUDIANTIL')">
-                <span class="btn-icon">⚛️</span>
+                <span class="btn-icon">🏠</span>
                 <span class="btn-text">Carátula</span>
             </button>
         </div>
 
-        <!-- Archivos Subidos -->
+        <!-- Sílabo -->
         <div class="tab">
-            <button class="tab-btn" id="btn-subidas" onclick="mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES'); toggleTab('list-subidas'); cargarSubidas()">
-                <span class="btn-icon">📁</span>
-                <span class="btn-text">Archivos Subidos</span>
+            <button class="tab-btn" id="btn-silabo" onclick="mostrarPortada('SÍLABO', 'PLANIFICACIÓN ACADÉMICA'); toggleTab('list-silabo')">
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">Sílabo</span>
             </button>
-            <div id="list-subidas" class="tab-content">
-                <!-- Se llenará dinámicamente o puedes agregar links manualmente -->
+            <div id="list-silabo" class="tab-content">
+                <a onclick="visualizar('Silabo/Silabo.pdf')">Silabo Física Aplicada</a>
+            </div>
+        </div>
+
+        <!-- Fundamentos -->
+        <div class="tab">
+            <button class="tab-btn" id="btn-fundamentos" onclick="mostrarPortada('FUNDAMENTOS', 'TEORÍA Y CONCEPTOS'); toggleTab('list-fundamentos')">
+                <span class="btn-icon">📚</span>
+                <span class="btn-text">Fundamentos</span>
+            </button>
+            <div id="list-fundamentos" class="tab-content">
+                <a onclick="visualizar('Fundamentos/Fundamento Lab 1.pdf')">Fundamento Lab 1</a>
+                <a onclick="visualizar('Fundamentos/Fundamento Lab 2.pdf')">Fundamento Lab 2</a>
+                <a onclick="visualizar('Fundamentos/Fundamento Lab 3.pdf')">Fundamento Lab 3</a>
+                <a onclick="visualizar('Fundamentos/Fundamento Lab 4.pdf')">Fundamento Lab 4</a>
             </div>
         </div>
 
@@ -53,117 +67,43 @@
                 <span class="btn-text">Laboratorios</span>
             </button>
             <div id="list-labs" class="tab-content">
-                <a onclick="visualizar('Laboratorios/Laboratorio_1.pdf')">Laboratorio 1</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_2.pdf')">Laboratorio 2</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_3.pdf')">Laboratorio 3</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_4.pdf')">Laboratorio 4</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_5.pdf')">Laboratorio 5</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_6.pdf')">Laboratorio 6</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_7.pdf')">Laboratorio 7</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_8.pdf')">Laboratorio 8</a>
-                <a onclick="visualizar('Laboratorios/Laboratorio_9.pdf')">Laboratorio 9</a>
+                <a onclick="visualizar('Laboratorios/Laboratorio 1.pdf')">Laboratorio 1</a>
+                <a onclick="visualizar('Laboratorios/Laboratorio 2.pdf')">Laboratorio 2</a>
+                <a onclick="visualizar('Laboratorios/Laboratorio 3.pdf')">Laboratorio 3</a>
             </div>
         </div>
 
-        <!-- Actividades -->
+        <!-- Pruebas -->
         <div class="tab">
-            <button class="tab-btn" id="btn-actividades" onclick="mostrarPortada('ACTIVIDADES', 'TRABAJOS Y EJERCICIOS'); toggleTab('list-actividades')">
+            <button class="tab-btn" id="btn-pruebas" onclick="mostrarPortada('PRUEBAS', 'EVALUACIONES Y EXÁMENES'); toggleTab('list-pruebas')">
                 <span class="btn-icon">📝</span>
-                <span class="btn-text">Actividades</span>
+                <span class="btn-text">Pruebas</span>
             </button>
-            <div id="list-actividades" class="tab-content">
-                <a onclick="visualizar('Individuales/Trabajo_Individual_1.pdf')">Actividad 1</a>
-                <a onclick="visualizar('Individuales/Trabajo_Individual_2.pdf')">Actividad 2</a>
-                <a onclick="visualizar('Individuales/Corrección.pdf')">Corrección</a>
+            <div id="list-pruebas" class="tab-content">
+                <a onclick="visualizar('Pruebas/Prueba lab 1.pdf')">Prueba Lab 1</a>
+                <a onclick="visualizar('Pruebas/Prueba lab 2.pdf')">Prueba Lab 2</a>
             </div>
         </div>
 
-        <!-- Talleres -->
+        <!-- Tareas -->
         <div class="tab">
-            <button class="tab-btn" id="btn-talleres" onclick="mostrarPortada('TALLERES', 'APRENDIZAJE COLABORATIVO'); toggleTab('list-talleres')">
-                <span class="btn-icon">🛠️</span>
-                <span class="btn-text">Talleres</span>
+            <button class="tab-btn" id="btn-tareas" onclick="mostrarPortada('TAREAS', 'ACTIVIDADES AUTÓNOMAS'); toggleTab('list-tareas')">
+                <span class="btn-icon">✏️</span>
+                <span class="btn-text">Tareas</span>
             </button>
-            <div id="list-talleres" class="tab-content">
-                <a onclick="visualizar('Grupales/Trabajo_Grupal_1.pdf')">Taller 1</a>
-                <a onclick="visualizar('Grupales/Trabajo_Grupal_2.pdf')">Taller 2</a>
-                <a onclick="visualizar('Grupales/Trabajo_Grupal_3.pdf')">Taller 3</a>
-                <a onclick="visualizar('Grupales/Trabajo_Grupal_Mapa_1.pdf')">Taller 4</a>
+            <div id="list-tareas" class="tab-content">
+                <a onclick="visualizar('Tareas/TareaN3.pdf')">Tarea N3</a>
             </div>
         </div>
 
-        <!-- Material de Clase -->
+        <!-- Informes Grupales -->
         <div class="tab">
-            <button class="tab-btn" id="btn-material" onclick="mostrarPortada('MATERIAL DE CLASE', 'APUNTES Y RECURSOS'); toggleTab('list-material')">
-                <span class="btn-icon">📖</span>
-                <span class="btn-text">Material de Clase</span>
+            <button class="tab-btn" id="btn-grupales" onclick="mostrarPortada('INFORMES GRUPALES', 'APRENDIZAJE COLABORATIVO'); toggleTab('list-grupales')">
+                <span class="btn-icon">👥</span>
+                <span class="btn-text">Informes Grupales</span>
             </button>
-            <div id="list-material" class="tab-content">
-                <button class="sub-tab-btn" onclick="toggleSubTab('mat-u1')">Unidad 1</button>
-                <div id="mat-u1" class="sub-tab-content">
-                    <a onclick="visualizar('Materia/U1/Clase1.pdf')">Clase 1</a>
-                    <a onclick="visualizar('Materia/U1/Clase1_Ampliada.pdf')">Clase 1 Ampliada</a>
-                    <a onclick="visualizar('Materia/U1/Clase 3_ED como modelo matemático (1).pdf')">Clase 3: Modelo Matemático</a>
-                    <a onclick="visualizar('Materia/U1/Ecuación diferencial.pdf')">Ecuación Diferencial</a>
-                    <a onclick="visualizar('Materia/U1/Ecuaciones Diferenciales.pdf')">Ecuaciones Diferenciales</a>
-                    <a onclick="visualizar('Materia/U1/VALORES INICIALES.pdf')">Valores Iniciales</a>
-                    <a onclick="visualizar('Materia/U1/Presentación_Silabo_MAT4.pdf')">Presentación del Sílabo</a>
-                    <a onclick="visualizar('Materia/U1/Dialnet-OfertaYDemanda-3640667.pdf')">Oferta y Demanda</a>
-                </div>
-
-                <button class="sub-tab-btn" onclick="toggleSubTab('mat-u2')">Unidad 2</button>
-                <div id="mat-u2" class="sub-tab-content">
-                    <a onclick="visualizar('Materia/U2/7.4_ Ecuaciones diferenciales separables - LibreTexts Español.pdf')">Ecuaciones Separables</a>
-                    <a onclick="visualizar('Materia/U2/Ecuaciones diferenciales exactas.pdf')">Ecuaciones Exactas</a>
-                    <a onclick="visualizar('Materia/U2/Ecuaciones Diferenciales_Homogeneas_Parte1.pdf')">Ecuaciones Homogéneas</a>
-                    <a onclick="visualizar('Materia/U2/Libro Ecuaciones Diferenciales Ordinarias.pdf')">Ecuaciones Ordinarias</a>
-                </div>
-
-                <button class="sub-tab-btn" onclick="toggleSubTab('mat-u3')">Unidad 3</button>
-                <div id="mat-u3" class="sub-tab-content">
-                    <a onclick="visualizar('Materia/U3/3.2 Regla_de_Simpson_De_la_Curva_al_Cálculo.pdf')">Regla de Simpson</a>
-                    <a onclick="visualizar('Materia/U3/INTEGRACIÓN NUMÉRICA_Introducción.pdf')">Integración Numérica: Intro</a>
-                    <a onclick="visualizar('Materia/U3/Integracion.pdf')">Integración</a>
-                    <a onclick="visualizar('Materia/U3/Método de Gauss.pdf')">Método de Gauss</a>
-                    <a onclick="visualizar('Materia/U3/Newton_Cotes_2.pdf')">Fórmulas Newton-Cotes</a>
-                    <a onclick="visualizar('Materia/U3/Simpson.pdf')">Método de Simpson</a>
-                    <a onclick="visualizar('Materia/U3/cn1tema4.pdf')">Tema 4: Integración</a>
-                    <a onclick="visualizar('Materia/U3/clase18b.pdf')">Clase 18b</a>
-                    <a onclick="visualizar('Materia/U3/clase19a.pdf')">Clase 19a</a>
-                    <a onclick="visualizar('Materia/U3/Repaso unidad 3.pdf')">Repaso de Unidad 3</a>
-                </div>
-
-                <button class="sub-tab-btn" onclick="toggleSubTab('mat-u4')">Unidad 4</button>
-                <div id="mat-u4" class="sub-tab-content">
-                    <a onclick="visualizar('Materia/U4/UNIDAD 4_intro.pdf')">Introducción Unidad 4</a>
-                    <a onclick="visualizar('Materia/U4/Método de bisección.pdf')">Método de Bisección</a>
-                    <a onclick="visualizar('Materia/U4/MÉTODO DE LA SECANTE(Runge).pdf')">Método de la Secante (Runge)</a>
-                    <a onclick="visualizar('Materia/U4/Método de Newton.pdf')">Método de Newton</a>
-                    <a onclick="visualizar('Materia/U4/Newton Raphson.pdf')">Newton-Raphson</a>
-                    <a onclick="visualizar('Materia/U4/METODO_DE_LA_FALSA_POSICION_1.pdf')">Método de la Falsa Posición</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Formularios -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-formularios" onclick="mostrarPortada('FORMULARIOS', 'FÓRMULAS DE FÍSICA'); toggleTab('list-formularios')">
-                <span class="btn-icon">📐</span>
-                <span class="btn-text">Formularios</span>
-            </button>
-            <div id="list-formularios" class="tab-content">
-                <a onclick="visualizar('Formularios/Formularios.pdf')">Formularios</a>
-            </div>
-        </div>
-
-        <!-- Sílabo -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-silabo" onclick="mostrarPortada('SÍLABO', 'PLANIFICACIÓN ACADÉMICA'); toggleTab('list-silabo')">
-                <span class="btn-icon">📋</span>
-                <span class="btn-text">Sílabo</span>
-            </button>
-            <div id="list-silabo" class="tab-content">
-                <a onclick="visualizar('Silabo/Silabo.pdf')">Ver Sílabo</a>
+            <div id="list-grupales" class="tab-content">
+                <a onclick="visualizar('Informes_Grupales/Informe Grupal 1.pdf')">Informe Grupal 1</a>
             </div>
         </div>
 
@@ -174,58 +114,44 @@
                 <span class="btn-text">Mapas Mentales</span>
             </button>
             <div id="list-mapas" class="tab-content">
-                <a onclick="visualizar('Individuales/Trabajo_Individual_Mapa_1.pdf')">Mapa Mental 1</a>
-                <a onclick="visualizar('Individuales/Trabajo_Individual_Mapa_2.pdf')">Mapa Mental 2</a>
-                <a onclick="visualizar('Individuales/Trabajo_Individual_Mapa_3.pdf')">Mapa Mental 3</a>
-                <a onclick="visualizar('Individuales/Trabajo_Individual_Mapa_4.pdf')">Mapa Mental 4</a>
-                <a onclick="visualizar('Individuales/Trabajo_Individual_Mapa_5.pdf')">Mapa Mental 5</a>
+                <a onclick="visualizar('Mapas_Mentales/Mapa Mental 1.pdf')">Mapa Mental 1</a>
+                <a onclick="visualizar('Mapas_Mentales/Mapa Mental 2.pdf')">Mapa Mental 2</a>
+                <a onclick="visualizar('Mapas_Mentales/Mapa Mental 3.pdf')">Mapa Mental 3</a>
+                <a onclick="visualizar('Mapas_Mentales/Mapa mental 4.pdf')">Mapa Mental 4</a>
             </div>
         </div>
 
-        <!-- Información Personal / Resume -->
+        <!-- Material de Apoyo -->
         <div class="tab">
-            <button class="tab-btn" id="btn-info" onclick="mostrarPortada('INFORMACIÓN PERSONAL', 'RESUME ACADÉMICO'); toggleTab('list-info')">
+            <button class="tab-btn" id="btn-apoyo" onclick="mostrarPortada('MATERIAL DE APOYO', 'RECURSOS ADICIONALES'); toggleTab('list-apoyo')">
+                <span class="btn-icon">📚</span>
+                <span class="btn-text">Material de Apoyo</span>
+            </button>
+            <div id="list-apoyo" class="tab-content">
+                <a onclick="visualizar('Material_Apoyo/fisica incompleto.pdf')">Física (Incompleto)</a>
+                <a onclick="visualizar('Material_Apoyo/Archivo_escaneado_20260429-0739.jpg')">Archivo Escaneado</a>
+            </div>
+        </div>
+
+        <!-- Información Personal -->
+        <div class="tab">
+            <button class="tab-btn" id="btn-info" onclick="mostrarPortada('INFORMACIÓN PERSONAL', 'CURRÍCULUM'); toggleTab('list-info')">
                 <span class="btn-icon">👤</span>
                 <span class="btn-text">Información Personal</span>
             </button>
             <div id="list-info" class="tab-content">
-                <div class="info-card">
-                    <p><strong>Nombre:</strong> Juan Valle</p>
-                    <p><strong>Carrera:</strong> Pedagogía de las Ciencias Experimentales, Informática</p>
-                    <p><strong>Semestre:</strong> 5to "B"</p>
-                    <p><strong>Código:</strong> PCEI5-002</p>
-                    <p><strong>Período:</strong> 2026-2026</p>
-                    <p><strong>Universidad:</strong> Universidad Central del Ecuador</p>
-                </div>
+                <a onclick="visualizar('Informacion_Personal/Curriculum.pdf')">Ver Currículum</a>
             </div>
         </div>
 
-        <!-- Separador Material de Clase -->
-        <div class="menu-divider">
-            <span>── Material de Clase ──</span>
-        </div>
-
-        <!-- Centro de Física -->
+        <!-- Archivos Subidos (Dinámico) -->
         <div class="tab">
-            <button class="tab-btn" id="btn-centro" onclick="mostrarPortada('CENTRO DE FÍSICA', 'RECURSOS DEL CENTRO'); toggleTab('list-centro')">
-                <span class="btn-icon">🏛️</span>
-                <span class="btn-text">Centro de Física</span>
+            <button class="tab-btn" id="btn-subidas" onclick="mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES'); toggleTab('list-subidas'); cargarSubidas()">
+                <span class="btn-icon">📁</span>
+                <span class="btn-text">Subidas Recientes</span>
             </button>
-            <div id="list-centro" class="tab-content">
-                <a onclick="visualizar('Evaluaciones/Prueba_2_U1.pdf')">Recurso 1</a>
-                <a onclick="visualizar('Evaluaciones/Prueba_3_U1.pdf')">Recurso 2</a>
-                <a onclick="visualizar('Evaluaciones/Prueba_4_U1.pdf')">Recurso 3</a>
-            </div>
-        </div>
-
-        <!-- Horario de Clases -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-horario" onclick="mostrarPortada('HORARIO DE CLASES', 'PLANIFICACIÓN SEMANAL'); toggleTab('list-horario')">
-                <span class="btn-icon">🕐</span>
-                <span class="btn-text">Horario de Clases</span>
-            </button>
-            <div id="list-horario" class="tab-content">
-                <a onclick="visualizar('Tarjetas/Tarjeta_1.pdf')">Horario Semestre</a>
+            <div id="list-subidas" class="tab-content">
+                <!-- Se llenará dinámicamente -->
             </div>
         </div>
 
@@ -286,49 +212,45 @@
                 <div id="accesos-directos">
                     <h4 class="accesos-title">Accesos Directos</h4>
                     <div class="accesos-grid">
-                        <button class="acceso-card" onclick="document.getElementById('btn-subidas').click()">
-                            <span class="acceso-icon">📁</span>
-                            <span class="acceso-label">Subidas</span>
+                        <button class="acceso-card" onclick="document.getElementById('btn-silabo').click()">
+                            <span class="acceso-icon">📋</span>
+                            <span class="acceso-label">Sílabo</span>
+                        </button>
+                        <button class="acceso-card" onclick="document.getElementById('btn-fundamentos').click()">
+                            <span class="acceso-icon">📚</span>
+                            <span class="acceso-label">Fundamentos</span>
                         </button>
                         <button class="acceso-card" onclick="document.getElementById('btn-labs').click()">
                             <span class="acceso-icon">🔬</span>
                             <span class="acceso-label">Laboratorios</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-actividades').click()">
+                        <button class="acceso-card" onclick="document.getElementById('btn-pruebas').click()">
                             <span class="acceso-icon">📝</span>
-                            <span class="acceso-label">Actividades</span>
+                            <span class="acceso-label">Pruebas</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-talleres').click()">
-                            <span class="acceso-icon">🛠️</span>
-                            <span class="acceso-label">Talleres</span>
+                        <button class="acceso-card" onclick="document.getElementById('btn-tareas').click()">
+                            <span class="acceso-icon">✏️</span>
+                            <span class="acceso-label">Tareas</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-material').click()">
-                            <span class="acceso-icon">📖</span>
-                            <span class="acceso-label">Material</span>
-                        </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-formularios').click()">
-                            <span class="acceso-icon">📐</span>
-                            <span class="acceso-label">Formularios</span>
-                        </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-silabo').click()">
-                            <span class="acceso-icon">📋</span>
-                            <span class="acceso-label">Sílabo</span>
+                        <button class="acceso-card" onclick="document.getElementById('btn-grupales').click()">
+                            <span class="acceso-icon">👥</span>
+                            <span class="acceso-label">Grupales</span>
                         </button>
                         <button class="acceso-card" onclick="document.getElementById('btn-mapas').click()">
                             <span class="acceso-icon">🧠</span>
-                            <span class="acceso-label">Mapas Mentales</span>
+                            <span class="acceso-label">Mapas Ment</span>
+                        </button>
+                        <button class="acceso-card" onclick="document.getElementById('btn-apoyo').click()">
+                            <span class="acceso-icon">📚</span>
+                            <span class="acceso-label">Apoyo</span>
                         </button>
                         <button class="acceso-card" onclick="document.getElementById('btn-info').click()">
                             <span class="acceso-icon">👤</span>
-                            <span class="acceso-label">Info Personal</span>
+                            <span class="acceso-label">Mi Info</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-centro').click()">
-                            <span class="acceso-icon">🏛️</span>
-                            <span class="acceso-label">Centro Física</span>
-                        </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-horario').click()">
-                            <span class="acceso-icon">🕐</span>
-                            <span class="acceso-label">Horario</span>
+                        <button class="acceso-card" onclick="document.getElementById('btn-subidas').click()">
+                            <span class="acceso-icon">📁</span>
+                            <span class="acceso-label">Subidas</span>
                         </button>
                     </div>
                 </div>

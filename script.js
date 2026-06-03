@@ -35,7 +35,7 @@ function cerrarMenus() {
 }
 
 /* 4. FUNCIÓN PARA MOSTRAR LA PORTADA DIGITAL */
-function mostrarPortada(titulo, subtitulo) {
+function mostrarPortada(titulo, subtitulo, tabId) {
     // Ocultamos los visores de archivos
     document.getElementById('visor-pdf').style.display = 'none';
     document.getElementById('visor-img').style.display = 'none';
@@ -48,12 +48,108 @@ function mostrarPortada(titulo, subtitulo) {
     document.getElementById('subtitulo-portada').innerText = subtitulo;
     document.getElementById('file-name').innerText = "Portada: " + subtitulo;
 
-    // Mostrar/ocultar accesos directos solo en la portada principal
+    // Renderizar botones dinámicamente según la sección
     const accesos = document.getElementById('accesos-directos');
-    if (accesos) {
-        if (titulo === 'FÍSICA APLICADA' && subtitulo === 'PORTAFOLIO ESTUDIANTIL') {
+    const grid = document.querySelector('.accesos-grid');
+    const accesosTitle = document.querySelector('.accesos-title');
+    
+    if (accesos && grid && accesosTitle) {
+        if (!tabId || (titulo === 'FÍSICA APLICADA' && subtitulo === 'PORTAFOLIO ESTUDIANTIL')) {
+            // Mostrar los botones originales para la carátula
+            accesosTitle.innerText = "Accesos Directos";
+            grid.innerHTML = `
+                <button class="acceso-card" onclick="document.getElementById('btn-silabo').click()">
+                    <span class="acceso-icon">📋</span>
+                    <span class="acceso-label">Sílabo</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-fundamentos').click()">
+                    <span class="acceso-icon">📚</span>
+                    <span class="acceso-label">Fundamentos</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-labs').click()">
+                    <span class="acceso-icon">🔬</span>
+                    <span class="acceso-label">Laboratorios</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-pruebas').click()">
+                    <span class="acceso-icon">📝</span>
+                    <span class="acceso-label">Pruebas</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-tareas').click()">
+                    <span class="acceso-icon">✏️</span>
+                    <span class="acceso-label">Tareas</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-grupales').click()">
+                    <span class="acceso-icon">👥</span>
+                    <span class="acceso-label">Grupales</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-mapas').click()">
+                    <span class="acceso-icon">🧠</span>
+                    <span class="acceso-label">Mapas Ment</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-apoyo').click()">
+                    <span class="acceso-icon">📚</span>
+                    <span class="acceso-label">Apoyo</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-info').click()">
+                    <span class="acceso-icon">👤</span>
+                    <span class="acceso-label">Mi Info</span>
+                </button>
+                <button class="acceso-card" onclick="document.getElementById('btn-subidas').click()">
+                    <span class="acceso-icon">📁</span>
+                    <span class="acceso-label">Subidas</span>
+                </button>
+            `;
             accesos.style.display = 'block';
         } else {
+            // Es otra sección, extraer links del sidebar
+            // Para 'list-subidas' es especial porque se carga async, podemos darle un observer o recargarlo.
+            let targetTab = tabId.replace(/['"]/g, ''); // Quitar comillas si las hay
+            const tabContent = document.getElementById(targetTab);
+            grid.innerHTML = '';
+            
+            if (tabContent) {
+                const links = tabContent.querySelectorAll('a');
+                if (links.length > 0) {
+                    accesosTitle.innerText = "Documentos Disponibles";
+                    links.forEach((link, idx) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'acceso-card';
+                        btn.style.animation = `cardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${idx * 0.05}s forwards`;
+                        btn.style.opacity = '0';
+                        btn.setAttribute('onclick', link.getAttribute('onclick'));
+                        
+                        let text = link.innerText;
+                        let icon = '📄';
+                        
+                        // Asignar ícono según el texto
+                        if (text.toLowerCase().includes('pdf') || text.toLowerCase().includes('silabo')) icon = '📋';
+                        else if (text.toLowerCase().includes('lab')) icon = '🔬';
+                        else if (text.toLowerCase().includes('prueba')) icon = '📝';
+                        else if (text.toLowerCase().includes('tarea')) icon = '✏️';
+                        else if (text.toLowerCase().includes('mapa')) icon = '🧠';
+                        else if (text.toLowerCase().includes('grupal')) icon = '👥';
+                        else if (text.toLowerCase().includes('curriculum')) icon = '👤';
+                        
+                        btn.innerHTML = `
+                            <span class="acceso-icon">${icon}</span>
+                            <span class="acceso-label">${text}</span>
+                        `;
+                        grid.appendChild(btn);
+                    });
+                    accesos.style.display = 'block';
+                } else if (targetTab === 'list-subidas') {
+                    // Especial para subidas que se carga asincrono
+                    accesosTitle.innerText = "Documentos Disponibles";
+                    accesos.style.display = 'block';
+                    // Dejamos que cargarSubidas lo llene luego llamando a mostrarPortada nuevamente o sincronizando
+                } else {
+                    accesos.style.display = 'none';
+                }
+            } else {
+                accesos.style.display = 'none';
+            }
+        }
+    } else {
             accesos.style.display = 'none';
         }
     }
@@ -283,6 +379,11 @@ async function cargarSubidas() {
         });
         
         contenedor.dataset.cargado = "true";
+        // Si estamos viendo la sección de subidas, actualizar la portada
+        const tituloActual = document.getElementById('titulo-portada').innerText;
+        if (tituloActual === 'ARCHIVOS SUBIDOS') {
+            mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES', 'list-subidas');
+        }
     } catch (error) {
         contenedor.innerHTML = '<span style="padding: 10px; color: #ff6b6b;">No hay archivos o ocurrió un error.</span>';
         console.error(error);

@@ -106,6 +106,7 @@ function updateActiveButton(activeTabId) {
 
     // Mapear IDs de tab-content a IDs de botones
     const tabToBtnMap = {
+        'list-subidas': 'btn-subidas',
         'list-labs': 'btn-labs',
         'list-actividades': 'btn-actividades',
         'list-talleres': 'btn-talleres',
@@ -251,3 +252,40 @@ window.onload = function() {
         sidebar.classList.add('sidebar-hidden');
     }
 };
+
+/* 10. CARGAR ARCHIVOS SUBIDOS DINÁMICAMENTE DESDE GITHUB */
+async function cargarSubidas() {
+    const contenedor = document.getElementById('list-subidas');
+    if (!contenedor) return;
+    if (contenedor.dataset.cargado === "true") return; // Ya se cargaron
+    
+    contenedor.innerHTML = '<span style="padding: 10px; color: #fff;">Cargando archivos...</span>';
+    
+    try {
+        // Usa la API de GitHub para leer el contenido de la carpeta 'Subidas'
+        const response = await fetch('https://api.github.com/repos/juanmv96umb-byte/Portafolio-Fisica/contents/Subidas');
+        if (!response.ok) throw new Error('No se pudo cargar o la carpeta está vacía');
+        
+        const files = await response.json();
+        contenedor.innerHTML = ''; // Limpiar mensaje de carga
+        
+        const pdfFiles = files.filter(f => f.type === 'file' && f.name !== '.gitkeep');
+        
+        if (pdfFiles.length === 0) {
+            contenedor.innerHTML = '<span style="padding: 10px; color: #aaa;">No hay archivos nuevos</span>';
+            return;
+        }
+
+        pdfFiles.forEach(file => {
+            const a = document.createElement('a');
+            a.innerText = file.name.replace('.pdf', '').replace(/_/g, ' ');
+            a.onclick = () => visualizar(file.path);
+            contenedor.appendChild(a);
+        });
+        
+        contenedor.dataset.cargado = "true";
+    } catch (error) {
+        contenedor.innerHTML = '<span style="padding: 10px; color: #ff6b6b;">No hay archivos o ocurrió un error.</span>';
+        console.error(error);
+    }
+}

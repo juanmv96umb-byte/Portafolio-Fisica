@@ -35,6 +35,17 @@
             </button>
         </div>
 
+        <!-- Archivos Subidos -->
+        <div class="tab">
+            <button class="tab-btn" id="btn-subidas" onclick="mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES'); toggleTab('list-subidas'); cargarSubidas()">
+                <span class="btn-icon">📁</span>
+                <span class="btn-text">Archivos Subidos</span>
+            </button>
+            <div id="list-subidas" class="tab-content">
+                <!-- Se llenará dinámicamente o puedes agregar links manualmente -->
+            </div>
+        </div>
+
         <!-- Laboratorios -->
         <div class="tab">
             <button class="tab-btn" id="btn-labs" onclick="mostrarPortada('LABORATORIOS', 'PRÁCTICAS EXPERIMENTALES'); toggleTab('list-labs')">
@@ -275,6 +286,10 @@
                 <div id="accesos-directos">
                     <h4 class="accesos-title">Accesos Directos</h4>
                     <div class="accesos-grid">
+                        <button class="acceso-card" onclick="document.getElementById('btn-subidas').click()">
+                            <span class="acceso-icon">📁</span>
+                            <span class="acceso-label">Subidas</span>
+                        </button>
                         <button class="acceso-card" onclick="document.getElementById('btn-labs').click()">
                             <span class="acceso-icon">🔬</span>
                             <span class="acceso-label">Laboratorios</span>

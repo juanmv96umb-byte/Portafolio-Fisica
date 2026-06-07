@@ -149,11 +149,7 @@ function mostrarPortada(titulo, subtitulo, tabId) {
                 accesos.style.display = 'none';
             }
         }
-    } else {
-            accesos.style.display = 'none';
-        }
     }
-
     // Re-trigger animation
     const content = portada.querySelector('.portada-content');
     if (content) {

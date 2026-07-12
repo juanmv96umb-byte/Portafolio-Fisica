@@ -5,57 +5,67 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Portafolio Física Aplicada | Juan Valle</title>
-    <meta name="description" content="Portafolio estudiantil de Física Aplicada - Universidad Central del Ecuador">
+    <meta name="description" content="Portafolio estudiantil de Física Aplicada — Universidad Central del Ecuador">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=1.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2.0">
 </head>
 <body>
 
-<!-- Particle Background Canvas -->
-<canvas id="particle-bg"></canvas>
+<!-- Ambient Background -->
+<div class="ambient-bg">
+    <div class="ambient-orb ambient-orb--1"></div>
+    <div class="ambient-orb ambient-orb--2"></div>
+    <div class="ambient-orb ambient-orb--3"></div>
+</div>
 
-<!-- Sidebar Overlay (mobile) -->
+<!-- Mobile Overlay -->
 <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<nav id="sidebar" class="sidebar-visible">
-    <div class="profile">
-        <div class="profile-avatar">JV</div>
-        <h3>Juan Valle</h3>
-        <p class="profile-code">PCEI5-002</p>
-        <p class="profile-career">Pedagogía de las Ciencias Experimentales, Informática</p>
+<!-- ===== SIDEBAR ===== -->
+<nav id="sidebar" class="sidebar">
+    <div class="sidebar__header">
+        <div class="sidebar__avatar">
+            <span>JV</span>
+        </div>
+        <div class="sidebar__user">
+            <h3 class="sidebar__name">Juan Valle</h3>
+            <span class="sidebar__code">PCEI5-002</span>
+        </div>
     </div>
 
-    <div class="menu-container">
+    <div class="sidebar__nav">
         <!-- Carátula -->
-        <div class="menu-section">
-            <button class="tab-btn" id="btn-caratula" onclick="mostrarPortada('FÍSICA APLICADA', 'PORTAFOLIO ESTUDIANTIL')">
-                <span class="btn-icon">🏠</span>
-                <span class="btn-text">Carátula</span>
-            </button>
-        </div>
+        <button class="nav-item" id="btn-caratula" onclick="mostrarPortada('FÍSICA APLICADA', 'PORTAFOLIO ESTUDIANTIL')">
+            <span class="nav-item__icon">🏠</span>
+            <span class="nav-item__label">Carátula</span>
+        </button>
+
+        <div class="nav-divider"><span>Contenido</span></div>
 
         <!-- Sílabo -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-silabo" onclick="mostrarPortada('SÍLABO', 'PLANIFICACIÓN ACADÉMICA', 'list-silabo'); toggleTab('list-silabo')">
-                <span class="btn-icon">📋</span>
-                <span class="btn-text">Sílabo</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-silabo" onclick="mostrarPortada('SÍLABO', 'PLANIFICACIÓN ACADÉMICA', 'list-silabo'); toggleTab('list-silabo')">
+                <span class="nav-item__icon">📋</span>
+                <span class="nav-item__label">Sílabo</span>
+                <span class="nav-item__badge">1</span>
             </button>
-            <div id="list-silabo" class="tab-content">
+            <div id="list-silabo" class="nav-dropdown">
                 <a onclick="visualizar('Silabo/Silabo.pdf')">Silabo Física Aplicada</a>
             </div>
         </div>
 
         <!-- Fundamentos -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-fundamentos" onclick="mostrarPortada('FUNDAMENTOS', 'TEORÍA Y CONCEPTOS', 'list-fundamentos'); toggleTab('list-fundamentos')">
-                <span class="btn-icon">📚</span>
-                <span class="btn-text">Fundamentos</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-fundamentos" onclick="mostrarPortada('FUNDAMENTOS', 'TEORÍA Y CONCEPTOS', 'list-fundamentos'); toggleTab('list-fundamentos')">
+                <span class="nav-item__icon">📚</span>
+                <span class="nav-item__label">Fundamentos</span>
+                <span class="nav-item__badge">4</span>
             </button>
-            <div id="list-fundamentos" class="tab-content">
+            <div id="list-fundamentos" class="nav-dropdown">
                 <a onclick="visualizar('Fundamentos/Fundamento Lab 1.pdf')">Fundamento Lab 1</a>
                 <a onclick="visualizar('Fundamentos/Fundamento Lab 2.pdf')">Fundamento Lab 2</a>
                 <a onclick="visualizar('Fundamentos/Fundamento Lab 3.pdf')">Fundamento Lab 3</a>
@@ -64,12 +74,13 @@
         </div>
 
         <!-- Laboratorios -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-labs" onclick="mostrarPortada('LABORATORIOS', 'PRÁCTICAS EXPERIMENTALES', 'list-labs'); toggleTab('list-labs')">
-                <span class="btn-icon">🔬</span>
-                <span class="btn-text">Laboratorios</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-labs" onclick="mostrarPortada('LABORATORIOS', 'PRÁCTICAS EXPERIMENTALES', 'list-labs'); toggleTab('list-labs')">
+                <span class="nav-item__icon">🔬</span>
+                <span class="nav-item__label">Laboratorios</span>
+                <span class="nav-item__badge">3</span>
             </button>
-            <div id="list-labs" class="tab-content">
+            <div id="list-labs" class="nav-dropdown">
                 <a onclick="visualizar('Laboratorios/Laboratorio 1.pdf')">Laboratorio 1</a>
                 <a onclick="visualizar('Laboratorios/Laboratorio 2.pdf')">Laboratorio 2</a>
                 <a onclick="visualizar('Laboratorios/Laboratorio 3.pdf')">Laboratorio 3</a>
@@ -77,46 +88,50 @@
         </div>
 
         <!-- Pruebas -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-pruebas" onclick="mostrarPortada('PRUEBAS', 'EVALUACIONES Y EXÁMENES', 'list-pruebas'); toggleTab('list-pruebas')">
-                <span class="btn-icon">📝</span>
-                <span class="btn-text">Pruebas</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-pruebas" onclick="mostrarPortada('PRUEBAS', 'EVALUACIONES', 'list-pruebas'); toggleTab('list-pruebas')">
+                <span class="nav-item__icon">📝</span>
+                <span class="nav-item__label">Pruebas</span>
+                <span class="nav-item__badge">2</span>
             </button>
-            <div id="list-pruebas" class="tab-content">
+            <div id="list-pruebas" class="nav-dropdown">
                 <a onclick="visualizar('Pruebas/Prueba lab 1.pdf')">Prueba Lab 1</a>
                 <a onclick="visualizar('Pruebas/Prueba lab 2.pdf')">Prueba Lab 2</a>
             </div>
         </div>
 
         <!-- Tareas -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-tareas" onclick="mostrarPortada('TAREAS', 'ACTIVIDADES AUTÓNOMAS', 'list-tareas'); toggleTab('list-tareas')">
-                <span class="btn-icon">✏️</span>
-                <span class="btn-text">Tareas</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-tareas" onclick="mostrarPortada('TAREAS', 'ACTIVIDADES AUTÓNOMAS', 'list-tareas'); toggleTab('list-tareas')">
+                <span class="nav-item__icon">✏️</span>
+                <span class="nav-item__label">Tareas</span>
+                <span class="nav-item__badge">1</span>
             </button>
-            <div id="list-tareas" class="tab-content">
+            <div id="list-tareas" class="nav-dropdown">
                 <a onclick="visualizar('Tareas/TareaN3.pdf')">Tarea N3</a>
             </div>
         </div>
 
         <!-- Informes Grupales -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-grupales" onclick="mostrarPortada('INFORMES GRUPALES', 'APRENDIZAJE COLABORATIVO', 'list-grupales'); toggleTab('list-grupales')">
-                <span class="btn-icon">👥</span>
-                <span class="btn-text">Informes Grupales</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-grupales" onclick="mostrarPortada('INFORMES GRUPALES', 'APRENDIZAJE COLABORATIVO', 'list-grupales'); toggleTab('list-grupales')">
+                <span class="nav-item__icon">👥</span>
+                <span class="nav-item__label">Informes Grupales</span>
+                <span class="nav-item__badge">1</span>
             </button>
-            <div id="list-grupales" class="tab-content">
+            <div id="list-grupales" class="nav-dropdown">
                 <a onclick="visualizar('Informes_Grupales/Informe Grupal 1.pdf')">Informe Grupal 1</a>
             </div>
         </div>
 
         <!-- Mapas Mentales -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-mapas" onclick="mostrarPortada('MAPAS MENTALES', 'ORGANIZADORES GRÁFICOS', 'list-mapas'); toggleTab('list-mapas')">
-                <span class="btn-icon">🧠</span>
-                <span class="btn-text">Mapas Mentales</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-mapas" onclick="mostrarPortada('MAPAS MENTALES', 'ORGANIZADORES GRÁFICOS', 'list-mapas'); toggleTab('list-mapas')">
+                <span class="nav-item__icon">🧠</span>
+                <span class="nav-item__label">Mapas Mentales</span>
+                <span class="nav-item__badge">4</span>
             </button>
-            <div id="list-mapas" class="tab-content">
+            <div id="list-mapas" class="nav-dropdown">
                 <a onclick="visualizar('Mapas_Mentales/Mapa Mental 1.pdf')">Mapa Mental 1</a>
                 <a onclick="visualizar('Mapas_Mentales/Mapa Mental 2.pdf')">Mapa Mental 2</a>
                 <a onclick="visualizar('Mapas_Mentales/Mapa Mental 3.pdf')">Mapa Mental 3</a>
@@ -124,136 +139,146 @@
             </div>
         </div>
 
+        <div class="nav-divider"><span>Extras</span></div>
+
         <!-- Material de Apoyo -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-apoyo" onclick="mostrarPortada('MATERIAL DE APOYO', 'RECURSOS ADICIONALES', 'list-apoyo'); toggleTab('list-apoyo')">
-                <span class="btn-icon">📚</span>
-                <span class="btn-text">Material de Apoyo</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-apoyo" onclick="mostrarPortada('MATERIAL DE APOYO', 'RECURSOS ADICIONALES', 'list-apoyo'); toggleTab('list-apoyo')">
+                <span class="nav-item__icon">📖</span>
+                <span class="nav-item__label">Material de Apoyo</span>
             </button>
-            <div id="list-apoyo" class="tab-content">
+            <div id="list-apoyo" class="nav-dropdown">
                 <a onclick="visualizar('Material_Apoyo/fisica incompleto.pdf')">Física (Incompleto)</a>
                 <a onclick="visualizar('Material_Apoyo/Archivo_escaneado_20260429-0739.jpg')">Archivo Escaneado</a>
             </div>
         </div>
 
         <!-- Información Personal -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-info" onclick="mostrarPortada('INFORMACIÓN PERSONAL', 'CURRÍCULUM', 'list-info'); toggleTab('list-info')">
-                <span class="btn-icon">👤</span>
-                <span class="btn-text">Información Personal</span>
+        <div class="nav-group">
+            <button class="nav-item" id="btn-info" onclick="mostrarPortada('INFORMACIÓN PERSONAL', 'CURRÍCULUM VITAE', 'list-info'); toggleTab('list-info')">
+                <span class="nav-item__icon">👤</span>
+                <span class="nav-item__label">Información Personal</span>
             </button>
-            <div id="list-info" class="tab-content">
+            <div id="list-info" class="nav-dropdown">
                 <a onclick="visualizar('Informacion_Personal/Curriculum.pdf')">Ver Currículum</a>
             </div>
         </div>
 
-        <!-- Archivos Subidos (Dinámico) -->
-        <div class="tab">
-            <button class="tab-btn" id="btn-subidas" onclick="mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES', 'list-subidas'); toggleTab('list-subidas'); cargarSubidas()">
-                <span class="btn-icon">📁</span>
-                <span class="btn-text">Subidas Recientes</span>
+        <!-- Subidas Recientes -->
+        <div class="nav-group">
+            <button class="nav-item" id="btn-subidas" onclick="mostrarPortada('ARCHIVOS SUBIDOS', 'ARCHIVOS RECIENTES', 'list-subidas'); toggleTab('list-subidas'); cargarSubidas()">
+                <span class="nav-item__icon">📁</span>
+                <span class="nav-item__label">Subidas Recientes</span>
             </button>
-            <div id="list-subidas" class="tab-content">
-                <!-- Se llenará dinámicamente -->
+            <div id="list-subidas" class="nav-dropdown">
+                <!-- Dinámico -->
             </div>
         </div>
+    </div>
 
+    <div class="sidebar__footer">
+        <span class="sidebar__footer-text">UCE — Física Aplicada 2026</span>
     </div>
 </nav>
 
-<main>
-    <div class="header-bar">
-        <div class="header-left">
-            <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Mostrar/Ocultar menú">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
+    <!-- Top Bar -->
+    <header class="topbar">
+        <div class="topbar__left">
+            <button class="topbar__menu-btn" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menú">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect class="bar bar--top" x="3" y="5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect class="bar bar--mid" x="3" y="9.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect class="bar bar--bot" x="3" y="13.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
             </button>
-            <div id="status">
-                <span class="status-dot"></span>
-                Visualizando: <span id="file-name">Inicio</span>
+            <div class="topbar__breadcrumb">
+                <span class="topbar__dot"></span>
+                <span id="file-name">Inicio</span>
             </div>
         </div>
-        <div class="header-uni">Universidad Central del Ecuador</div>
-    </div>
-    
-    <div id="visor-container">
-        <iframe id="visor-pdf" src=""></iframe>
-        
-        <img id="visor-img" src="">
+        <div class="topbar__right">
+            <span class="topbar__uni">Universidad Central del Ecuador</span>
+        </div>
+    </header>
 
-        <div id="portada-digital">
-            <div class="portada-particles"></div>
-            <div class="uce-bar"></div>
-            <div class="portada-content">
-                <div class="portada-badge">UCE</div>
-                <h2 class="uni-title">UNIVERSIDAD CENTRAL DEL ECUADOR</h2>
-                <h3 class="facu-title">Facultad de Filosofía, Letras y Ciencias de la Educación</h3>
-                <p class="carrera-text">Pedagogía de las Ciencias Experimentales, Informática</p>
-                
-                <hr class="separator">
-                
-                <h1 id="titulo-portada">FÍSICA APLICADA</h1>
-                <h2 id="subtitulo-portada">PORTAFOLIO ESTUDIANTIL</h2>
-                
-                <div class="student-info">
-                    <div class="info-row">
-                        <span class="info-label">Estudiante</span>
-                        <span class="info-value">Juan Valle</span>
+    <!-- Content Area -->
+    <div class="content-area" id="visor-container">
+        <!-- PDF Viewer -->
+        <iframe id="visor-pdf" src=""></iframe>
+
+        <!-- Image Viewer -->
+        <img id="visor-img" src="" alt="Visor de imagen">
+
+        <!-- Portada Digital -->
+        <div id="portada-digital" class="portada">
+            <div class="portada__card">
+                <div class="portada__chip">UCE — 2026</div>
+
+                <h2 class="portada__institution">Universidad Central del Ecuador</h2>
+                <p class="portada__faculty">Facultad de Filosofía, Letras y Ciencias de la Educación</p>
+                <p class="portada__career">Pedagogía de las Ciencias Experimentales, Informática</p>
+
+                <div class="portada__divider"></div>
+
+                <h1 id="titulo-portada" class="portada__title">FÍSICA APLICADA</h1>
+                <h2 id="subtitulo-portada" class="portada__subtitle">PORTAFOLIO ESTUDIANTIL</h2>
+
+                <div class="portada__info">
+                    <div class="portada__info-item">
+                        <span class="portada__info-label">Estudiante</span>
+                        <span class="portada__info-value">Juan Valle</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Semestre</span>
-                        <span class="info-value">5to "B"</span>
+                    <div class="portada__info-item">
+                        <span class="portada__info-label">Semestre</span>
+                        <span class="portada__info-value">5to "B"</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Período</span>
-                        <span class="info-value">2026-2026</span>
+                    <div class="portada__info-item">
+                        <span class="portada__info-label">Período</span>
+                        <span class="portada__info-value">2026-2026</span>
                     </div>
                 </div>
 
-                <!-- Accesos Directos -->
-                <div id="accesos-directos">
-                    <h4 class="accesos-title">Accesos Directos</h4>
-                    <div class="accesos-grid">
-                        <button class="acceso-card" onclick="document.getElementById('btn-silabo').click()">
-                            <span class="acceso-icon">📋</span>
-                            <span class="acceso-label">Sílabo</span>
+                <!-- Accesos Directos / Documentos -->
+                <div id="accesos-directos" class="portada__shortcuts">
+                    <h4 class="portada__shortcuts-title accesos-title">Accesos Directos</h4>
+                    <div class="portada__grid accesos-grid">
+                        <button class="shortcut-card" onclick="document.getElementById('btn-silabo').click()">
+                            <span class="shortcut-card__icon">📋</span>
+                            <span class="shortcut-card__label">Sílabo</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-fundamentos').click()">
-                            <span class="acceso-icon">📚</span>
-                            <span class="acceso-label">Fundamentos</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-fundamentos').click()">
+                            <span class="shortcut-card__icon">📚</span>
+                            <span class="shortcut-card__label">Fundamentos</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-labs').click()">
-                            <span class="acceso-icon">🔬</span>
-                            <span class="acceso-label">Laboratorios</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-labs').click()">
+                            <span class="shortcut-card__icon">🔬</span>
+                            <span class="shortcut-card__label">Laboratorios</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-pruebas').click()">
-                            <span class="acceso-icon">📝</span>
-                            <span class="acceso-label">Pruebas</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-pruebas').click()">
+                            <span class="shortcut-card__icon">📝</span>
+                            <span class="shortcut-card__label">Pruebas</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-tareas').click()">
-                            <span class="acceso-icon">✏️</span>
-                            <span class="acceso-label">Tareas</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-tareas').click()">
+                            <span class="shortcut-card__icon">✏️</span>
+                            <span class="shortcut-card__label">Tareas</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-grupales').click()">
-                            <span class="acceso-icon">👥</span>
-                            <span class="acceso-label">Grupales</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-grupales').click()">
+                            <span class="shortcut-card__icon">👥</span>
+                            <span class="shortcut-card__label">Grupales</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-mapas').click()">
-                            <span class="acceso-icon">🧠</span>
-                            <span class="acceso-label">Mapas Ment</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-mapas').click()">
+                            <span class="shortcut-card__icon">🧠</span>
+                            <span class="shortcut-card__label">Mapas Mentales</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-apoyo').click()">
-                            <span class="acceso-icon">📚</span>
-                            <span class="acceso-label">Apoyo</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-apoyo').click()">
+                            <span class="shortcut-card__icon">📖</span>
+                            <span class="shortcut-card__label">Material Apoyo</span>
                         </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-info').click()">
-                            <span class="acceso-icon">👤</span>
-                            <span class="acceso-label">Mi Info</span>
-                        </button>
-                        <button class="acceso-card" onclick="document.getElementById('btn-subidas').click()">
-                            <span class="acceso-icon">📁</span>
-                            <span class="acceso-label">Subidas</span>
+                        <button class="shortcut-card" onclick="document.getElementById('btn-info').click()">
+                            <span class="shortcut-card__icon">👤</span>
+                            <span class="shortcut-card__label">Mi Info</span>
                         </button>
                     </div>
                 </div>
@@ -262,7 +287,6 @@
     </div>
 </main>
 
-<script src="script.js?v=1.1"></script>
-
+<script src="script.js?v=2.0"></script>
 </body>
 </html>

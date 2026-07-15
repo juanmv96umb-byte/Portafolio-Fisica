@@ -1312,6 +1312,16 @@ body.lantern-mode .lantern-hint { opacity: 1; }
     font-size: 0.85rem;
 }
 
+/* ═══ Glitch al cambiar tema ═══ */
+@keyframes themeGlitch {
+    0%   { filter: none; transform: translate(0); }
+    20%  { filter: hue-rotate(90deg) saturate(2); transform: translate(-2px, 1px); }
+    40%  { filter: hue-rotate(-60deg) contrast(1.3); transform: translate(2px, -1px); }
+    60%  { filter: invert(0.1) hue-rotate(30deg); transform: translate(-1px, 0); }
+    100% { filter: none; transform: translate(0); }
+}
+body.theme-glitch { animation: themeGlitch 0.5s ease; }
+
 /* ═══ Animations ═══ */
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }

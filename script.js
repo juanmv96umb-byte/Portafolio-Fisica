@@ -97,13 +97,17 @@
     ═══════════════════════════════════════════ */
 
     function setTheme(name) {
-        document.documentElement.setAttribute('data-theme', name);
-        localStorage.setItem('theme', name);
-        els.themeMatrix.querySelectorAll('.theme-btn').forEach(function (b) {
-            var act = b.getAttribute('data-theme') === name;
-            b.classList.toggle('is-active', act);
-            b.setAttribute('aria-checked', act);
-        });
+      document.body.classList.remove('theme-glitch');
+      void document.body.offsetWidth; // reflow para reiniciar animación
+      document.body.classList.add('theme-glitch');
+      document.documentElement.setAttribute('data-theme', name);
+      localStorage.setItem('theme', name);
+      els.themeMatrix.querySelectorAll('.theme-btn').forEach(function (b) {
+        var act = b.getAttribute('data-theme') === name;
+        b.classList.toggle('is-active', act);
+        b.setAttribute('aria-checked', act);
+      });
+      setTimeout(function () { document.body.classList.remove('theme-glitch'); }, 500);
     }
 
     var saved = localStorage.getItem('theme') || 'quantum';
@@ -595,6 +599,7 @@
             else if (name === 'kinematics') initKinematicsSim();
             else if (name === 'ohm') initOhmSim();
             else if (name === 'pendulum') initPendulumSim();
+            else if (name === 'young') initYoungSim();
         });
     });
 
@@ -737,6 +742,80 @@
         }
         draw();
     }
+
+    /* ─── Young's Double Slit Simulator ─── */
+    function initYoungSim() {
+        var canvas = document.getElementById('youngCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width, H = canvas.height;
+        var lambda = 30, d = 50;
+
+        var lambdaInput = document.querySelector('.young-lambda');
+        var dInput = document.querySelector('.young-d');
+        if (lambdaInput) lambdaInput.addEventListener('input', function () { lambda = +this.value; });
+        if (dInput) dInput.addEventListener('input', function () { d = +this.value; });
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // Draw slits on the left
+            var slitX = 40;
+            ctx.fillStyle = 'var(--ink-3)';
+            ctx.fillRect(slitX - 2, 10, 4, H - 20); // main barrier
+
+            // Draw gaps/slits
+            var y1 = H / 2 - d / 2;
+            var y2 = H / 2 + d / 2;
+            ctx.clearRect(slitX - 3, y1 - 4, 6, 8);
+            ctx.clearRect(slitX - 3, y2 - 4, 6, 8);
+
+            // Draw incoming light beam (left to right to slits)
+            var beamGrad = ctx.createLinearGradient(0, 0, slitX, 0);
+            beamGrad.addColorStop(0, 'rgba(0, 240, 255, 0)');
+            beamGrad.addColorStop(1, 'rgba(0, 240, 255, 0.25)');
+            ctx.fillStyle = beamGrad;
+            ctx.fillRect(0, 20, slitX, H - 40);
+
+            // Draw interference pattern on the right (screen at x = W - 40)
+            var screenX = W - 40;
+            ctx.fillStyle = 'var(--border)';
+            ctx.fillRect(screenX, 10, 8, H - 20); // screen bar
+
+            // Compute and draw fringes on screen
+            var L = screenX - slitX;
+            for (var y = 10; y < H - 10; y++) {
+                var screenY = y - H / 2;
+                var intensity = Math.pow(Math.cos((Math.PI * d * screenY) / (lambda * 8)), 2);
+                var alpha = intensity.toFixed(2);
+                ctx.fillStyle = 'rgba(0, 240, 255, ' + alpha + ')';
+                ctx.fillRect(screenX - 15, y, 15, 1);
+            }
+
+            // Draw waves/rays propagating
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+            ctx.lineWidth = 1;
+            for (var r = 10; r < L; r += 15) {
+                // Wavefronts from slit 1
+                ctx.beginPath();
+                ctx.arc(slitX, y1, r, -Math.PI/3, Math.PI/3);
+                ctx.stroke();
+
+                // Wavefronts from slit 2
+                ctx.beginPath();
+                ctx.arc(slitX, y2, r, -Math.PI/3, Math.PI/3);
+                ctx.stroke();
+            }
+
+            var deltaY = (lambda * L) / (d || 1) / 10; // scaled for visibility
+            var out = document.getElementById('youngOutput');
+            if (out) out.textContent = 'Franjas de interferencia Δy = ' + deltaY.toFixed(2) + ' mm';
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
 
     /* ═══════════════════════════════════════════
        COUNTERS & GAUGE

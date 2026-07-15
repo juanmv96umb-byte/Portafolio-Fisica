@@ -70,7 +70,10 @@
         ],
         ensayos: [],
         recursos: [
-            { title: 'Física (incompleto)', file: 'Material_Apoyo/fisica incompleto.pdf', type: 'Recurso', desc: 'Material de apoyo', icon: 'book' },
+            { title: 'Análisis no paramétrico', file: 'Material_Apoyo/Análisis no paramétrico.pdf', type: 'Recurso', desc: 'Material de apoyo' },
+            { title: 'Análisis paramétrico', file: 'Material_Apoyo/Análisis paramétrico.pdf', type: 'Recurso', desc: 'Material de apoyo' },
+            { title: 'Cálculos con las variables', file: 'Material_Apoyo/Cálculos con las variables.pdf', type: 'Recurso', desc: 'Material de apoyo' },
+            { title: 'Prueba de hipótesis', file: 'Material_Apoyo/Prueba de hipótesis.pdf', type: 'Recurso', desc: 'Material de apoyo' },
         ],
     };
 

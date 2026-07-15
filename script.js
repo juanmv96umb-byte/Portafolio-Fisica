@@ -1,786 +1,588 @@
-/* ============================================
-   FÍSICA APLICADA — PORTAFOLIO ESTUDIANTIL
-   Script v3.0 — PDF Previews, Modals, Rubric tracking
-   ============================================ */
+(function () {
+    'use strict';
 
-// ── Configuration ──────────────────────────────
-const DOCUMENTS = {
-  portada: { title: 'Carátula', rubric: 1.0, items: [] },
-  silabo: {
-    title: 'Sílabo', rubric: 1.0,
-    items: [{ id: 'silabo', file: 'Silabo/Silabo.pdf', title: 'Sílabo Física Aplicada', type: 'pdf' }]
-  },
-  fundamentos: {
-    title: 'Fundamentos Conceptuales', rubric: 2.0,
-    items: [
-      { id: 'fund-1', file: 'Fundamentos/Fundamento Lab 1.pdf', title: 'Fundamento Lab 1', type: 'pdf' },
-      { id: 'fund-2', file: 'Fundamentos/Fundamento Lab 2.pdf', title: 'Fundamento Lab 2', type: 'pdf' },
-      { id: 'fund-3', file: 'Fundamentos/Fundamento Lab 3.pdf', title: 'Fundamento Lab 3', type: 'pdf' },
-      { id: 'fund-4', file: 'Fundamentos/Fundamento Lab 4.pdf', title: 'Fundamento Lab 4', type: 'pdf' }
-    ]
-  },
-  laboratorios: {
-    title: 'Laboratorios del Centro de Física', rubric: 2.0,
-    items: [
-      { id: 'lab-1', file: 'Laboratorios/Laboratorio 1.pdf', title: 'Laboratorio 1', type: 'pdf' },
-      { id: 'lab-2', file: 'Laboratorios/Laboratorio 2.pdf', title: 'Laboratorio 2', type: 'pdf' },
-      { id: 'lab-3', file: 'Laboratorios/Laboratorio 3.pdf', title: 'Laboratorio 3', type: 'pdf' }
-    ]
-  },
-  'trabajos-grupales': {
-    title: 'Trabajos Grupales', rubric: 2.0,
-    items: [
-      { id: 'grupal-1', file: 'Informes_Grupales/Informe Grupal 1.pdf', title: 'Informe Grupal 1', type: 'pdf' }
-    ]
-  },
-  'trabajos-individuales': {
-    title: 'Trabajos Individuales', rubric: 2.0,
-    items: [
-      { id: 'tarea-1', file: 'Tareas/TareaN3.pdf', title: 'Tarea N3', type: 'pdf' }
-    ]
-  },
-  'mapas-mentales': {
-    title: 'Mapas Mentales', rubric: 2.0,
-    items: [
-      { id: 'mapa-1', file: 'Mapas_Mentales/Mapa Mental 1.pdf', title: 'Mapa Mental 1', type: 'pdf' },
-      { id: 'mapa-2', file: 'Mapas_Mentales/Mapa Mental 2.pdf', title: 'Mapa Mental 2', type: 'pdf' },
-      { id: 'mapa-3', file: 'Mapas_Mentales/Mapa Mental 3.pdf', title: 'Mapa Mental 3', type: 'pdf' },
-      { id: 'mapa-4', file: 'Mapas_Mentales/Mapa mental 4.pdf', title: 'Mapa Mental 4', type: 'pdf' }
-    ]
-  },
-  recursos: {
-    title: 'Capturas o Videos de Recursos', rubric: 1.0,
-    items: [
-      { id: 'recurso-1', file: 'Material_Apoyo/fisica incompleto.pdf', title: 'Física (Incompleto)', type: 'pdf' },
-      { id: 'recurso-2', file: 'Material_Apoyo/Archivo_escaneado_20260429-0739.jpg', title: 'Archivo Escaneado', type: 'image' }
-    ]
-  },
-  pruebas: {
-    title: 'Pruebas de Plataforma', rubric: 2.0,
-    items: [
-      { id: 'prueba-1', file: 'Pruebas/Prueba lab 1.pdf', title: 'Prueba Lab 1', type: 'pdf' },
-      { id: 'prueba-2', file: 'Pruebas/Prueba lab 2.pdf', title: 'Prueba Lab 2', type: 'pdf' }
-    ]
-  },
-  ensayos: {
-    title: 'Ensayos', rubric: 2.0,
-    items: []
-  },
-  'info-personal': {
-    title: 'Información Personal', rubric: '—',
-    items: [{ id: 'cv', file: 'Informacion_Personal/Curriculum.pdf', title: 'Currículum Vitae', type: 'pdf' }]
-  },
-  creatividad: { title: 'Creatividad y Diseño', rubric: 2.0, items: [] }
-};
+    /* ═══════════════════════════════════════════
+       DATA
+    ═══════════════════════════════════════════ */
 
-const SECTION_ORDER = [
-  'portada', 'silabo', 'fundamentos', 'laboratorios',
-  'trabajos-grupales', 'trabajos-individuales', 'mapas-mentales',
-  'recursos', 'pruebas', 'ensayos', 'info-personal', 'creatividad'
-];
-
-const QUICK_ACCESS_ITEMS = [
-  { id: 'silabo', icon: '📋', label: 'Sílabo' },
-  { id: 'fundamentos', icon: '📚', label: 'Fundamentos' },
-  { id: 'laboratorios', icon: '🔬', label: 'Laboratorios' },
-  { id: 'pruebas', icon: '📝', label: 'Pruebas' },
-  { id: 'trabajos-individuales', icon: '✏️', label: 'Individuales' },
-  { id: 'trabajos-grupales', icon: '👥', label: 'Grupales' },
-  { id: 'mapas-mentales', icon: '🧠', label: 'Mapas Mentales' },
-  { id: 'recursos', icon: '📸', label: 'Recursos' },
-  { id: 'info-personal', icon: '👤', label: 'Mi Info' }
-];
-
-// ── State ──────────────────────────────────────
-let currentSection = 'portada';
-let pdfDoc = null;
-let pdfPageNum = 1;
-let pdfScale = 1.0;
-let currentModalFile = null;
-let currentModalType = null;
-let pdfThumbsCache = new Map();
-
-// ── DOM Elements ───────────────────────────────
-const sidebar = document.getElementById('sidebar');
-const sidebarOverlay = document.getElementById('sidebar-overlay');
-const sidebarToggle = document.getElementById('sidebar-toggle');
-const mainContent = document.getElementById('main-content');
-const contentArea = document.getElementById('content-area');
-const currentSectionEl = document.getElementById('current-section');
-const progressBar = document.getElementById('progress-bar');
-const rubricTotalEl = document.getElementById('rubric-total');
-const quickAccessGrid = document.getElementById('quick-access-grid');
-const themeToggle = document.getElementById('theme-toggle');
-
-const pdfModal = document.getElementById('pdf-modal');
-const pdfCanvas = document.getElementById('pdf-canvas');
-const pdfLoading = document.getElementById('pdf-loading');
-const pdfError = document.getElementById('pdf-error');
-const pdfRetry = document.getElementById('pdf-retry');
-const pdfPageInfo = document.getElementById('pdf-page-info');
-const pdfZoomLevel = document.getElementById('pdf-zoom-level');
-const modalTitle = document.getElementById('modal-title');
-const modalDownload = document.getElementById('modal-download');
-const modalFullscreen = document.getElementById('modal-fullscreen');
-const modalClose = document.getElementById('modal-close');
-const pdfPrev = document.getElementById('pdf-prev');
-const pdfNext = document.getElementById('pdf-next');
-const pdfZoomIn = document.getElementById('pdf-zoom-in');
-const pdfZoomOut = document.getElementById('pdf-zoom-out');
-
-const imgModal = document.getElementById('img-modal');
-const imgModalImage = document.getElementById('img-modal-image');
-const imgModalTitle = document.getElementById('img-modal-title');
-const imgModalClose = document.getElementById('img-modal-close');
-
-// ── PDF.js Setup ───────────────────────────────
-if (typeof pdfjsLib !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
-}
-
-// ── Initialization ─────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  initializeTheme();
-  buildQuickAccess();
-  renderAllDocumentGrids();
-  setupEventListeners();
-  updateProgressBar();
-  calculateRubricTotal();
-  setupScrollSpy();
-  setupThumbnailLazyLoading();
-});
-
-function initializeTheme() {
-  const saved = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
-}
-
-function buildQuickAccess() {
-  quickAccessGrid.innerHTML = QUICK_ACCESS_ITEMS.map((item, i) => `
-    <button class="shortcut-card" data-section="${item.id}" style="animation-delay: ${i * 40}ms">
-      <span class="shortcut-card__icon">${item.icon}</span>
-      <span class="shortcut-card__label">${item.label}</span>
-    </button>
-  `).join('');
-
-  quickAccessGrid.querySelectorAll('.shortcut-card').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const section = btn.dataset.section;
-      navigateTo(section);
-      closeSidebarMobile();
-    });
-  });
-}
-
-function getContainerId(sectionId) {
-  if (sectionId === 'trabajos-grupales') return 'grid-grupales';
-  if (sectionId === 'trabajos-individuales') return 'grid-individuales';
-  if (sectionId === 'mapas-mentales') return 'grid-mapas';
-  return `grid-${sectionId}`;
-}
-
-function renderAllDocumentGrids() {
-  SECTION_ORDER.forEach(sectionId => {
-    if (sectionId === 'portada' || sectionId === 'info-personal' || sectionId === 'creatividad') return;
-    const containerId = getContainerId(sectionId);
-    const grid = document.getElementById(containerId);
-    if (grid) renderDocumentGrid(sectionId, grid);
-  });
-}
-
-function renderDocumentGrid(sectionId, container) {
-  const data = DOCUMENTS[sectionId];
-  if (!data || !data.items.length) {
-    container.innerHTML = `
-      <div class="empty-state" style="grid-column: 1 / -1;">
-        <span class="empty-state__icon">📄</span>
-        <h4 class="empty-state__title">Sin documentos aún</h4>
-        <p class="empty-state__text">Los archivos aparecerán aquí cuando se agreguen a la carpeta correspondiente.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = data.items.map((item, i) => `
-    <article class="preview-card" data-file="${item.file}" data-title="${item.title}" style="animation-delay: ${i * 50}ms">
-      <div class="preview-card__thumb" id="thumb-${item.id}">
-        <canvas class="pdf-thumb"></canvas>
-        <div class="thumb-spinner" aria-hidden="true"><div class="spinner spinner-small"></div></div>
-        <div class="preview-card__overlay">
-          <button class="preview-btn" aria-label="Ver ${item.title}">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        ${item.type === 'image' ? '<span class="type-badge type-image">IMG</span>' : '<span class="type-badge type-pdf">PDF</span>'}
-      </div>
-      <div class="preview-card__info">
-        <h4 class="preview-card__title">${item.title}</h4>
-        <p class="preview-card__meta">${formatFileName(item.file)}</p>
-        <span class="preview-card__badge badge--complete">Entregado</span>
-      </div>
-    </article>
-  `).join('');
-
-  container.querySelectorAll('.preview-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.preview-btn')) return;
-      openPreview(card.dataset.file, card.dataset.title);
-    });
-    card.querySelector('.preview-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      openPreview(card.dataset.file, card.dataset.title);
-    });
-  });
-}
-
-function renderMediaGrid(sectionId, container) {
-  const data = DOCUMENTS[sectionId];
-  if (!data || !data.items.length) {
-    container.innerHTML = `
-      <div class="empty-state" style="grid-column: 1 / -1;">
-        <span class="empty-state__icon">📸</span>
-        <h4 class="empty-state__title">Sin recursos aún</h4>
-        <p class="empty-state__text">Las capturas y videos aparecerán aquí.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = data.items.map((item, i) => `
-    <article class="media-card" data-file="${item.file}" data-title="${item.title}" style="animation-delay: ${i * 50}ms">
-      <div class="media-card__thumb" id="thumb-${item.id}">
-        ${item.type === 'image' ? `<img src="${item.file}" alt="${item.title}" loading="lazy">` : `<canvas class="pdf-thumb"></canvas><div class="thumb-spinner" aria-hidden="true"><div class="spinner spinner-small"></div></div>`}
-        <div class="media-card__overlay">
-          <button class="preview-btn" aria-label="Ver ${item.title}">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <span class="type-badge type-${item.type === 'image' ? 'image' : 'pdf'}">${item.type === 'image' ? 'IMG' : 'PDF'}</span>
-      </div>
-      <div class="media-card__info">
-        <h4 class="media-card__title">${item.title}</h4>
-        <span class="media-card__badge badge--complete">Entregado</span>
-      </div>
-    </article>
-  `).join('');
-
-  container.querySelectorAll('.media-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.preview-btn')) return;
-      openPreview(card.dataset.file, card.dataset.title);
-    });
-    card.querySelector('.preview-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      openPreview(card.dataset.file, card.dataset.title);
-    });
-  });
-}
-
-// Override renderDocumentGrid for recursos
-const originalRenderDocGrid = renderDocumentGrid;
-renderDocumentGrid = function(sectionId, container) {
-  if (sectionId === 'recursos') {
-    renderMediaGrid(sectionId, container);
-  } else {
-    originalRenderDocGrid(sectionId, container);
-  }
-};
-
-// ── Thumbnail Generation & Queue & Caching ─────
-let thumbnailQueue = [];
-let isProcessingQueue = false;
-
-function setupThumbnailLazyLoading() {
-  const cards = document.querySelectorAll('.preview-card, .media-card');
-  const observerOptions = {
-    root: contentArea,
-    rootMargin: '200px 0px', // Preload when card is 200px close
-    threshold: 0
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const card = entry.target;
-        const file = card.dataset.file;
-        const thumbContainer = card.querySelector('.preview-card__thumb, .media-card__thumb');
-        
-        if (thumbContainer) {
-          const thumbId = thumbContainer.id;
-          const isImageJpg = card.classList.contains('media-card') && file.endsWith('.jpg');
-
-          if (thumbId && !isImageJpg) {
-            // Check memory cache
-            if (pdfThumbsCache.has(file)) {
-              applyThumbnail(thumbId, pdfThumbsCache.get(file));
-            } else {
-              // Try loading from localStorage cache
-              const cached = loadFromLocalStorage(file);
-              if (cached) {
-                pdfThumbsCache.set(file, cached);
-                applyThumbnail(thumbId, cached);
-              } else {
-                // Queue generation
-                queueThumbnail(file, thumbId);
-              }
-            }
-          }
-        }
-        observer.unobserve(card); // Process only once
-      }
-    });
-  }, observerOptions);
-
-  cards.forEach(card => observer.observe(card));
-}
-
-function queueThumbnail(file, thumbId) {
-  if (thumbnailQueue.some(t => t.thumbId === thumbId)) return;
-  thumbnailQueue.push({ file, thumbId });
-  processThumbnailQueue();
-}
-
-async function processThumbnailQueue() {
-  if (isProcessingQueue || thumbnailQueue.length === 0) return;
-  isProcessingQueue = true;
-
-  const task = thumbnailQueue.shift();
-  try {
-    await renderThumbnailTask(task.file, task.thumbId);
-  } catch (err) {
-    console.warn('Queue task failed', task, err);
-  }
-
-  isProcessingQueue = false;
-  setTimeout(processThumbnailQueue, 50); // Pause briefly between heavy renders
-}
-
-async function renderThumbnailTask(filePath, thumbId) {
-  try {
-    if (typeof pdfjsLib === 'undefined') {
-      throw new Error('PDF.js not loaded');
-    }
-    const pdf = await pdfjsLib.getDocument(filePath).promise;
-    const page = await pdf.getPage(1);
-    
-    // Scale very small (0.2) to minimize resource usage and memory footprint
-    const viewport = page.getViewport({ scale: 0.20 });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.65); // Highly compressed JPEGs
-
-    pdfThumbsCache.set(filePath, dataUrl);
-    saveToLocalStorage(filePath, dataUrl);
-    applyThumbnail(thumbId, dataUrl);
-  } catch (err) {
-    console.warn('CORS or loading error generating thumbnail for:', filePath, err);
-    applyThumbnail(thumbId, null); // Elegant CSS fallback
-  }
-}
-
-function applyThumbnail(thumbId, dataUrl) {
-  const thumbEl = document.getElementById(thumbId);
-  if (!thumbEl) return;
-  
-  const canvas = thumbEl.querySelector('canvas.pdf-thumb');
-  const spinner = thumbEl.querySelector('.thumb-spinner');
-
-  if (canvas && dataUrl) {
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.style.display = 'block';
-      ctx.drawImage(img, 0, 0);
-      if (spinner) spinner.remove();
+    const DOCS = {
+        caratula: [
+            { title: 'Hoja de Vida / Curriculum', file: 'Informacion_Personal/Curriculum.pdf', type: 'Carátula' },
+        ],
+        silabo: [
+            { title: 'Sílabo', file: 'Silabo/Silabo.pdf', type: 'Sílabo' },
+        ],
+        fundamentos: [
+            { title: 'Fundamento Lab 1', file: 'Fundamentos/Fundamento Lab 1.pdf', type: 'Fundamento' },
+            { title: 'Fundamento Lab 2', file: 'Fundamentos/Fundamento Lab 2.pdf', type: 'Fundamento' },
+            { title: 'Fundamento Lab 3', file: 'Fundamentos/Fundamento Lab 3.pdf', type: 'Fundamento' },
+            { title: 'Fundamento Lab 4', file: 'Fundamentos/Fundamento Lab 4.pdf', type: 'Fundamento' },
+        ],
+        laboratorios: [
+            { title: 'Laboratorio 1', file: 'Laboratorios/Laboratorio 1.pdf', type: 'Laboratorio' },
+            { title: 'Laboratorio 2', file: 'Laboratorios/Laboratorio 2.pdf', type: 'Laboratorio' },
+            { title: 'Laboratorio 3', file: 'Laboratorios/Laboratorio 3.pdf', type: 'Laboratorio' },
+        ],
+        trabajos: [
+            { title: 'Informe Grupal 1', file: 'Informes_Grupales/Informe Grupal 1.pdf', type: 'Grupal' },
+        ],
+        individuales: [
+            { title: 'Tarea N°3', file: 'Tareas/TareaN3.pdf', type: 'Individual' },
+        ],
+        mapas: [
+            { title: 'Mapa Mental 1', file: 'Mapas_Mentales/Mapa Mental 1.pdf', type: 'Mapa Mental' },
+            { title: 'Mapa Mental 2', file: 'Mapas_Mentales/Mapa Mental 2.pdf', type: 'Mapa Mental' },
+            { title: 'Mapa Mental 3', file: 'Mapas_Mentales/Mapa Mental 3.pdf', type: 'Mapa Mental' },
+            { title: 'Mapa mental 4', file: 'Mapas_Mentales/Mapa mental 4.pdf', type: 'Mapa Mental' },
+        ],
+        pruebas: [
+            { title: 'Prueba Lab 1', file: 'Pruebas/Prueba lab 1.pdf', type: 'Prueba' },
+            { title: 'Prueba Lab 2', file: 'Pruebas/Prueba lab 2.pdf', type: 'Prueba' },
+        ],
+        ensayos: [],
+        recursos: [
+            { title: 'Física (incompleto)', file: 'Material_Apoyo/fisica incompleto.pdf', desc: 'Material de apoyo', icon: 'book' },
+        ],
     };
-    img.src = dataUrl;
-  } else {
-    // Elegant fallback: remove canvas and spinner, render CSS premium cover
-    if (canvas) canvas.style.display = 'none';
-    if (spinner) spinner.remove();
 
-    const existingFallback = thumbEl.querySelector('.pdf-fallback-cover');
-    if (!existingFallback) {
-      const fallback = document.createElement('div');
-      fallback.className = 'pdf-fallback-cover';
+    const RUBRIC = [
+        { name: 'Carátula y hoja de vida', desc: 'Presenta datos completos y organizados', max: 1.0, values: [0, 0.5, 1.0] },
+        { name: 'Sílabo', desc: 'Incluye sílabo completo y subrayado', max: 1.0, values: [0, 0.5, 1.0] },
+        { name: '10 Fundamentos Conceptuales', desc: 'Completos, desarrollados y organizados', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: '10 Laboratorios del Centro de Física', desc: 'Completos con evidencias', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'N.° Trabajos Grupales', desc: 'Solicitados y completos', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'N.° Trabajos Individuales', desc: 'Completos', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'N.° Mapas Mentales', desc: 'Completos, claros y organizados', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'Capturas o videos de recursos', desc: 'Evidencias del uso de recursos', max: 1.0, values: [0, 0.5, 1.0] },
+        { name: 'Pruebas de plataforma', desc: 'Todas las pruebas realizadas', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'Ensayos', desc: 'Buena redacción, ortografía y contenido', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'Creatividad', desc: 'Diseño original, creativo y atractivo', max: 2.0, values: [0, 1.0, 2.0] },
+        { name: 'Orden', desc: 'Organizado, limpio, secuencia lógica', max: 1.0, values: [0, 0.5, 1.0] },
+    ];
 
-      // Get short display name
-      const fileLabel = thumbId.replace('thumb-', '')
-                              .replace('fund-', 'Fundamento ')
-                              .replace('lab-', 'Laboratorio ')
-                              .replace('grupal-', 'Grupal ')
-                              .replace('tarea-', 'Tarea ')
-                              .replace('mapa-', 'Mapa ')
-                              .replace('prueba-', 'Prueba ')
-                              .replace('recurso-', 'Recurso ')
-                              .replace('silabo', 'Sílabo');
+    const ALL_ITEMS = Object.values(DOCS).reduce((a, b) => a.concat(b), []);
+    const TOTAL_DOCS = ALL_ITEMS.length;
+    const RUBRIC_MAX = RUBRIC.reduce((s, r) => s + r.max, 0);
 
-      fallback.innerHTML = `
-        <div class="pdf-fallback-cover__logo">PDF</div>
-        <div class="pdf-fallback-cover__title">${fileLabel}</div>
-      `;
-      thumbEl.appendChild(fallback);
+    /* ═══════════════════════════════════════════
+       STATE
+    ═══════════════════════════════════════════ */
+
+    let favorites = loadFavorites();
+    let rubricScores = loadRubricScores();
+
+    /* ═══════════════════════════════════════════
+       DOM HELPERS
+    ═══════════════════════════════════════════ */
+
+    const $ = (s, p) => (p || document).querySelector(s);
+    const $$ = (s, p) => Array.from((p || document).querySelectorAll(s));
+
+    /* ═══════════════════════════════════════════
+       SVG ICONS (inline strings)
+    ═══════════════════════════════════════════ */
+
+    const S = {
+        pdf: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+        eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+        dl: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+        heart: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+        heartFill: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+        empty: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>',
+        book: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+        beaker: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>',
+        clipboard: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>',
+        external: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+    };
+
+    const RES_ICONS = { book: S.book, beaker: S.beaker, clipboard: S.clipboard };
+
+    /* ═══════════════════════════════════════════
+       FAVORITES
+    ═══════════════════════════════════════════ */
+
+    function loadFavorites() {
+        try { return JSON.parse(localStorage.getItem('pfavs')) || []; } catch { return []; }
     }
-  }
-}
 
-function saveToLocalStorage(file, dataUrl) {
-  try {
-    localStorage.setItem('pdf_thumb_' + file, dataUrl);
-  } catch (e) {
-    console.warn('LocalStorage full, clearing cache');
-    clearLocalStorageCache();
-  }
-}
-
-function loadFromLocalStorage(file) {
-  try {
-    return localStorage.getItem('pdf_thumb_' + file);
-  } catch (e) {
-    return null;
-  }
-}
-
-function clearLocalStorageCache() {
-  try {
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('pdf_thumb_')) {
-        keysToRemove.push(key);
-      }
+    function saveFavorites() {
+        localStorage.setItem('pfavs', JSON.stringify(favorites));
     }
-    keysToRemove.forEach(k => localStorage.removeItem(k));
-  } catch (e) {}
-}
 
-// ── Navigation & ScrollSpy ─────────────────────
-function navigateTo(sectionId) {
-  if (!DOCUMENTS[sectionId]) return;
-  const target = document.getElementById(`section-${sectionId}`);
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth' });
-    updateSidebarActive(sectionId);
-    updateTopNavActive(sectionId);
-  }
-}
-
-function updateSidebarActive(sectionId) {
-  document.querySelectorAll('.sidebar .nav-item').forEach(btn => {
-    btn.classList.remove('active');
-    btn.removeAttribute('aria-current');
-  });
-  const activeBtn = document.querySelector(`.sidebar .nav-item[data-section="${sectionId}"]`);
-  if (activeBtn) {
-    activeBtn.classList.add('active');
-    activeBtn.setAttribute('aria-current', 'true');
-  }
-}
-
-function updateTopNavActive(sectionId) {
-  document.querySelectorAll('.nav-item--top').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  const activeBtn = document.querySelector(`.nav-item--top[data-section="${sectionId}"]`);
-  if (activeBtn) {
-    activeBtn.classList.add('active');
-    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }
-}
-
-function updateProgressBar() {
-  const scrollHeight = contentArea.scrollHeight - contentArea.clientHeight;
-  const scrollTop = contentArea.scrollTop;
-  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-  progressBar.style.transform = `scaleX(${progress / 100})`;
-}
-
-function setupScrollSpy() {
-  const sections = SECTION_ORDER.map(id => document.getElementById(`section-${id}`)).filter(Boolean);
-  
-  // Track scroll inside contentArea
-  contentArea.addEventListener('scroll', updateProgressBar, { passive: true });
-
-  const observerOptions = {
-    root: contentArea,
-    rootMargin: '-30% 0px -55% 0px', // Trigger when section crosses center
-    threshold: 0
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const sectionId = entry.target.id.replace('section-', '');
-        currentSection = sectionId;
-        updateSidebarActive(sectionId);
-        updateTopNavActive(sectionId);
-      }
-    });
-  }, observerOptions);
-
-  sections.forEach(s => observer.observe(s));
-}
-
-function calculateRubricTotal() {
-  let total = 0;
-  let earned = 0;
-  Object.values(DOCUMENTS).forEach(data => {
-    const max = typeof data.rubric === 'number' ? data.rubric : 0;
-    total += max;
-    // Simple heuristic: if items exist, count as earned
-    if (data.items.length > 0) earned += max;
-  });
-  const scoreText = `${earned.toFixed(1)} / ${total.toFixed(1)}`;
-  if (rubricTotalEl) rubricTotalEl.textContent = scoreText;
-  const headerTotalEl = document.getElementById('header-rubric-total');
-  if (headerTotalEl) headerTotalEl.textContent = scoreText;
-}
-
-// ── PDF Modal ──────────────────────────────────
-async function openPreview(filePath, title) {
-  currentModalFile = filePath;
-  currentModalType = filePath.split('.').pop().toLowerCase();
-
-  if (currentModalType === 'pdf') {
-    await openPdfModal(filePath, title);
-  } else {
-    openImageModal(filePath, title);
-  }
-}
-
-async function openPdfModal(filePath, title) {
-  modalTitle.textContent = title;
-  modalDownload.onclick = () => downloadFile(filePath, title);
-  modalDownload.href = filePath;
-  modalDownload.download = title + '.pdf';
-
-  pdfModal.showModal();
-  pdfLoading.classList.remove('hidden');
-  pdfError.classList.add('hidden');
-  pdfCanvas.style.display = 'none';
-  pdfPageNum = 1;
-  pdfScale = 1.0;
-
-  try {
-    pdfDoc = await pdfjsLib.getDocument(filePath).promise;
-    await renderPdfPage();
-  } catch (err) {
-    console.error('PDF load error:', err);
-    pdfLoading.classList.add('hidden');
-    pdfError.classList.remove('hidden');
-  }
-}
-
-function openImageModal(filePath, title) {
-  imgModalTitle.textContent = title;
-  imgModalImage.src = filePath;
-  imgModalImage.alt = title;
-  imgModal.showModal();
-}
-
-async function renderPdfPage() {
-  if (!pdfDoc) return;
-  pdfLoading.classList.remove('hidden');
-  pdfError.classList.add('hidden');
-
-  try {
-    const page = await pdfDoc.getPage(pdfPageNum);
-    const viewport = page.getViewport({ scale: pdfScale });
-
-    pdfCanvas.width = viewport.width;
-    pdfCanvas.height = viewport.height;
-    pdfCanvas.style.width = '100%';
-    pdfCanvas.style.height = 'auto';
-
-    const ctx = pdfCanvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
-
-    pdfCanvas.style.display = 'block';
-    pdfLoading.classList.add('hidden');
-    pdfPageInfo.textContent = `Página ${pdfPageNum} de ${pdfDoc.numPages}`;
-    pdfZoomLevel.textContent = `${Math.round(pdfScale * 100)}%`;
-
-    pdfPrev.disabled = pdfPageNum === 1;
-    pdfNext.disabled = pdfPageNum === pdfDoc.numPages;
-  } catch (err) {
-    console.error('PDF render error:', err);
-    pdfLoading.classList.add('hidden');
-    pdfError.classList.remove('hidden');
-  }
-}
-
-function changePdfPage(delta) {
-  if (!pdfDoc) return;
-  const newPage = pdfPageNum + delta;
-  if (newPage >= 1 && newPage <= pdfDoc.numPages) {
-    pdfPageNum = newPage;
-    renderPdfPage();
-  }
-}
-
-function changePdfZoom(delta) {
-  pdfScale = Math.max(0.5, Math.min(3.0, pdfScale + delta));
-  renderPdfPage();
-}
-
-function closePdfModal() {
-  pdfModal.close();
-  pdfDoc = null;
-  currentModalFile = null;
-}
-
-function closeImageModal() {
-  imgModal.close();
-  imgModalImage.src = '';
-  currentModalFile = null;
-}
-
-// ── Event Listeners ────────────────────────────
-function setupEventListeners() {
-  // Sidebar navigation
-  document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
-    btn.addEventListener('click', () => navigateTo(btn.dataset.section));
-  });
-
-  // Sidebar toggle
-  sidebarToggle.addEventListener('click', toggleSidebar);
-  sidebarOverlay.addEventListener('click', closeSidebarMobile);
-
-  // Theme toggle
-  themeToggle.addEventListener('click', toggleTheme);
-
-  // Keyboard navigation
-  document.addEventListener('keydown', handleKeydown);
-
-  // PDF Modal
-  modalClose.addEventListener('click', closePdfModal);
-  pdfModal.querySelector('.pdf-modal__backdrop').addEventListener('click', closePdfModal);
-  pdfPrev.addEventListener('click', () => changePdfPage(-1));
-  pdfNext.addEventListener('click', () => changePdfPage(1));
-  pdfZoomIn.addEventListener('click', () => changePdfZoom(0.25));
-  pdfZoomOut.addEventListener('click', () => changePdfZoom(-0.25));
-  pdfRetry.addEventListener('click', () => {
-    if (currentModalFile) openPdfModal(currentModalFile, modalTitle.textContent);
-  });
-
-  // Image Modal
-  imgModalClose.addEventListener('click', closeImageModal);
-  imgModal.querySelector('.img-modal__backdrop').addEventListener('click', closeImageModal);
-
-  // Escape key closes modals
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (pdfModal.open) closePdfModal();
-      if (imgModal.open) closeImageModal();
-      if (sidebar.classList.contains('sidebar-visible')) closeSidebarMobile();
+    function toggleFav(file) {
+        const i = favorites.indexOf(file);
+        i > -1 ? favorites.splice(i, 1) : favorites.push(file);
+        saveFavorites();
+        updateStats();
+        return favorites.includes(file);
     }
-  });
 
-  // Touch swipe for mobile sidebar
-  let touchStartX = 0;
-  sidebar.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-  sidebar.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (dx < -80) closeSidebarMobile();
-  }, { passive: true });
-}
+    function isFav(file) { return favorites.includes(file); }
 
-// ── Sidebar ────────────────────────────────────
-function toggleSidebar() {
-  const isMobile = window.innerWidth < 1024;
-  if (isMobile) {
-    sidebar.classList.toggle('sidebar-visible');
-    sidebarOverlay.classList.toggle('show', sidebar.classList.contains('sidebar-visible'));
-    sidebarToggle.classList.toggle('active', sidebar.classList.contains('sidebar-visible'));
-    sidebarToggle.setAttribute('aria-expanded', sidebar.classList.contains('sidebar-visible'));
-  } else {
-    sidebar.classList.toggle('sidebar-hidden');
-    sidebarToggle.classList.toggle('active', sidebar.classList.contains('sidebar-hidden'));
-  }
-}
+    /* ═══════════════════════════════════════════
+       RUBRIC SCORES
+    ═══════════════════════════════════════════ */
 
-function closeSidebarMobile() {
-  sidebar.classList.remove('sidebar-visible');
-  sidebarOverlay.classList.remove('show');
-  sidebarToggle.classList.remove('active');
-  sidebarToggle.setAttribute('aria-expanded', 'false');
-}
+    function loadRubricScores() {
+        try { return JSON.parse(localStorage.getItem('prubric')) || {}; } catch { return {}; }
+    }
 
-// ── Theme ──────────────────────────────────────
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-}
+    function saveRubricScores() {
+        localStorage.setItem('prubric', JSON.stringify(rubricScores));
+    }
 
-// ── Keyboard Navigation ────────────────────────
-function handleKeydown(e) {
-  // Arrow keys for section navigation
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    function getRubricScore(idx) {
+        return rubricScores[idx] !== undefined ? rubricScores[idx] : 0;
+    }
 
-  const index = SECTION_ORDER.indexOf(currentSection);
-  if (index === -1) return;
+    function setRubricScore(idx, val) {
+        rubricScores[idx] = val;
+        saveRubricScores();
+        renderRubricTotal();
+    }
 
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-    e.preventDefault();
-    const next = SECTION_ORDER[(index + 1) % SECTION_ORDER.length];
-    navigateTo(next);
-  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-    e.preventDefault();
-    const prev = SECTION_ORDER[(index - 1 + SECTION_ORDER.length) % SECTION_ORDER.length];
-    navigateTo(prev);
-  } else if (e.key >= '1' && e.key <= '9') {
-    const num = parseInt(e.key, 10) - 1;
-    if (SECTION_ORDER[num]) navigateTo(SECTION_ORDER[num]);
-  }
-}
+    /* ═══════════════════════════════════════════
+       ESCAPE
+    ═══════════════════════════════════════════ */
 
-// ── Utilities ──────────────────────────────────
-function formatFileName(path) {
-  return path.split('/').pop().replace(/\.[^.]+$/, '').replace(/_/g, ' ');
-}
+    function esc(str) {
+        var d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
 
-function downloadFile(url, filename) {
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
+    /* ═══════════════════════════════════════════
+       RENDER: DOCUMENT CARD
+    ═══════════════════════════════════════════ */
 
-function downloadCV() {
-  downloadFile('Informacion_Personal/Curriculum.pdf', 'CV_Juan_Valle.pdf');
-}
+    function renderDocCard(item) {
+        var faved = isFav(item.file);
+        var card = document.createElement('div');
+        card.className = 'doc-card';
+        card.dataset.file = item.file;
+        card.dataset.search = (item.title + ' ' + (item.type || '')).toLowerCase();
 
-// ── Window Resize ──────────────────────────────
-window.addEventListener('resize', () => {
-  if (window.innerWidth >= 1024) {
-    closeSidebarMobile();
-  }
-  if (pdfModal.open && pdfDoc) {
-    renderPdfPage();
-  }
-});
+        card.innerHTML =
+            '<div class="doc-card__thumb doc-card__thumb--loading"><div class="doc-card__thumb-placeholder">' + S.pdf + '</div></div>' +
+            '<div class="doc-card__body">' +
+                '<div class="doc-card__title">' + esc(item.title) + '</div>' +
+                '<div class="doc-card__meta">' + esc(item.type || item.section || 'Documento') + '</div>' +
+                '<div class="doc-card__actions">' +
+                    '<a href="' + esc(item.file) + '" target="_blank" rel="noopener" class="doc-card__btn doc-card__btn--primary">' + S.eye + ' Ver</a>' +
+                    '<a href="' + esc(item.file) + '" download class="doc-card__btn">' + S.dl + '</a>' +
+                    '<button class="doc-card__btn doc-card__btn--fav" data-faved="' + faved + '" title="' + (faved ? 'Quitar' : 'Añadir') + ' favorito">' + (faved ? S.heartFill : S.heart) + '</button>' +
+                '</div>' +
+            '</div>';
 
-// ── Expose for inline handlers ─────────────────
-window.navigateTo = navigateTo;
-window.downloadCV = downloadCV;
-window.toggleSidebar = toggleSidebar;
+        card.querySelector('.doc-card__btn--fav').addEventListener('click', function (e) {
+            e.preventDefault();
+            var now = toggleFav(item.file);
+            this.dataset.faved = now;
+            this.innerHTML = now ? S.heartFill : S.heart;
+            this.title = now ? 'Quitar favorito' : 'Añadir favorito';
+        });
+
+        return card;
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER: RESOURCE CARD
+    ═══════════════════════════════════════════ */
+
+    function renderResCard(item) {
+        var a = document.createElement('a');
+        a.className = 'resource-card';
+        a.href = item.file;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.innerHTML =
+            '<div class="resource-card__icon">' + (RES_ICONS[item.icon] || S.book) + '</div>' +
+            '<div class="resource-card__info">' +
+                '<div class="resource-card__title">' + esc(item.title) + '</div>' +
+                '<div class="resource-card__desc">' + esc(item.desc || '') + '</div>' +
+            '</div>' +
+            '<div class="resource-card__arrow">' + S.external + '</div>';
+        return a;
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER: EMPTY STATE
+    ═══════════════════════════════════════════ */
+
+    function renderEmpty(grid) {
+        grid.innerHTML = '<div class="empty-state">' + S.empty + '<div class="empty-state__text">Sección sin documentos aún</div></div>';
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER: GRID
+    ═══════════════════════════════════════════ */
+
+    function renderGrid(id, items) {
+        var grid = document.getElementById('grid-' + id);
+        if (!grid) return;
+        grid.innerHTML = '';
+        if (!items || items.length === 0) {
+            renderEmpty(grid);
+            return;
+        }
+        var frag = document.createDocumentFragment();
+        items.forEach(function (item) {
+            if (item.desc !== undefined) {
+                frag.appendChild(renderResCard(item));
+            } else {
+                frag.appendChild(renderDocCard(item));
+            }
+        });
+        grid.appendChild(frag);
+    }
+
+    function renderAll() {
+        for (var key in DOCS) {
+            if (!DOCS.hasOwnProperty(key)) continue;
+            if (key === 'individuales') continue;
+            if (key === 'trabajos') {
+                renderGrid('trabajos', DOCS.trabajos.concat(DOCS.individuales));
+            } else {
+                renderGrid(key, DOCS[key]);
+            }
+        }
+    }
+
+    /* ═══════════════════════════════════════════
+       THUMBNAIL ENGINE
+    ═══════════════════════════════════════════ */
+
+    var thumbQueue = [];
+    var thumbBusy = false;
+
+    function ensurePdfReady() {
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            return true;
+        }
+        return false;
+    }
+
+    function queueThumbnail(file, container) {
+        thumbQueue.push({ file: file, el: container });
+        processQueue();
+    }
+
+    function processQueue() {
+        if (thumbBusy || thumbQueue.length === 0) return;
+        thumbBusy = true;
+        var job = thumbQueue.shift();
+        renderThumb(job.file, job.el, function () {
+            thumbBusy = false;
+            processQueue();
+        });
+    }
+
+    function renderThumb(file, container, done) {
+        if (!ensurePdfReady()) {
+            container.classList.remove('doc-card__thumb--loading');
+            container.classList.add('doc-card__thumb--fallback');
+            done();
+            return;
+        }
+
+        var key = 't_' + file.replace(/[^a-zA-Z0-9]/g, '_');
+        var cached;
+        try { cached = localStorage.getItem(key); } catch (e) {}
+        if (cached) {
+            container.innerHTML = '';
+            var img = document.createElement('img');
+            img.src = cached;
+            img.alt = '';
+            container.appendChild(img);
+            container.classList.remove('doc-card__thumb--loading');
+            done();
+            return;
+        }
+
+        pdfjsLib.getDocument(file).promise.then(function (pdf) {
+            return pdf.getPage(1).then(function (page) {
+                var vp = page.getViewport({ scale: 0.25 });
+                var c = document.createElement('canvas');
+                c.width = vp.width;
+                c.height = vp.height;
+                return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function () {
+                    var dataUrl = c.toDataURL('image/webp', 0.5);
+                    try { localStorage.setItem(key, dataUrl); } catch (e) {}
+                    container.innerHTML = '';
+                    container.appendChild(c);
+                    container.classList.remove('doc-card__thumb--loading');
+                    done();
+                });
+            });
+        }).catch(function () {
+            container.classList.remove('doc-card__thumb--loading');
+            container.classList.add('doc-card__thumb--fallback');
+            done();
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       LAZY THUMBNAIL OBSERVER
+    ═══════════════════════════════════════════ */
+
+    var thumbObserver = null;
+
+    function setupThumbObserver() {
+        thumbObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                var card = entry.target;
+                var container = card.querySelector('.doc-card__thumb--loading');
+                if (!container) return;
+                container.dataset.queued = '1';
+                var file = card.dataset.file;
+                if (file) queueThumbnail(file, container);
+                thumbObserver.unobserve(card);
+            });
+        }, { rootMargin: '150px' });
+
+        $$('.doc-card__thumb--loading').forEach(function (el) {
+            var card = el.closest('.doc-card');
+            if (card) thumbObserver.observe(card);
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER: RUBRIC
+    ═══════════════════════════════════════════ */
+
+    function renderRubric() {
+        var table = document.getElementById('rubricaTable');
+        if (!table) return;
+        table.innerHTML = '';
+
+        RUBRIC.forEach(function (r, idx) {
+            var row = document.createElement('div');
+            row.className = 'rubrica-row';
+
+            var info = document.createElement('div');
+            info.className = 'rubrica-row__info';
+            info.innerHTML = '<div class="rubrica-row__name">' + esc(r.name) + '</div><div class="rubrica-row__desc">' + esc(r.desc) + '</div>';
+
+            var maxEl = document.createElement('div');
+            maxEl.className = 'rubrica-row__max';
+            maxEl.textContent = r.max.toFixed(1);
+
+            var scores = document.createElement('div');
+            scores.className = 'rubrica-row__scores';
+
+            var current = getRubricScore(idx);
+
+            r.values.forEach(function (v) {
+                var btn = document.createElement('button');
+                btn.className = 'rubrica-opt' + (v === current ? ' rubrica-opt--active' : '');
+                btn.textContent = v.toFixed(v % 1 === 0 ? 0 : 1);
+                btn.addEventListener('click', function () {
+                    setRubricScore(idx, v);
+                    // update UI
+                    row.querySelectorAll('.rubrica-opt').forEach(function (b) {
+                        b.classList.toggle('rubrica-opt--active', parseFloat(b.textContent) === v);
+                    });
+                });
+                scores.appendChild(btn);
+            });
+
+            row.appendChild(info);
+            row.appendChild(maxEl);
+            row.appendChild(scores);
+            table.appendChild(row);
+        });
+    }
+
+    function renderRubricTotal() {
+        var total = 0;
+        RUBRIC.forEach(function (r, idx) {
+            total += getRubricScore(idx);
+        });
+        var el = document.getElementById('rubricaScore');
+        var fill = document.getElementById('rubricaFill');
+        if (el) el.textContent = total.toFixed(1) + ' / ' + RUBRIC_MAX.toFixed(1);
+        if (fill) fill.style.width = Math.min(100, (total / RUBRIC_MAX) * 100) + '%';
+    }
+
+    /* ═══════════════════════════════════════════
+       SEARCH & FILTER
+    ═══════════════════════════════════════════ */
+
+    function setupSearch(sectionId) {
+        var input = document.getElementById('search' + cap(sectionId));
+        var filterBtn = document.getElementById('filter' + cap(sectionId));
+        var grid = document.getElementById('grid-' + sectionId);
+        if (!input || !grid) return;
+
+        var favOnly = false;
+
+        function apply() {
+            var q = input.value.toLowerCase().trim();
+            var cards = grid.querySelectorAll('.doc-card');
+            var v = 0;
+            cards.forEach(function (c) {
+                var match = !q || (c.dataset.search || '').indexOf(q) > -1;
+                var fav = !favOnly || c.querySelector('.doc-card__btn--fav').dataset.faved === 'true';
+                var show = match && fav;
+                c.classList.toggle('doc-card--hidden', !show);
+                if (show) v++;
+            });
+            return v;
+        }
+
+        input.addEventListener('input', apply);
+
+        if (filterBtn) {
+            filterBtn.addEventListener('click', function () {
+                favOnly = !favOnly;
+                this.classList.toggle('btn--active', favOnly);
+                this.innerHTML = (favOnly ? S.heartFill + ' Favoritos' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg> Filtrar');
+                apply();
+            });
+        }
+    }
+
+    function cap(s) {
+        if (s === 'fundamentos') return 'Fundamentos';
+        if (s === 'laboratorios') return 'Laboratorios';
+        if (s === 'trabajos') return 'Trabajos';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    /* ═══════════════════════════════════════════
+       STATS
+    ═══════════════════════════════════════════ */
+
+    function updateStats() {
+        var td = document.getElementById('totalDocs');
+        if (td) td.textContent = TOTAL_DOCS;
+
+        var fv = document.getElementById('favoritosCount');
+        if (fv) fv.textContent = favorites.length;
+
+        var pct = TOTAL_DOCS > 0 ? Math.round((favorites.length / TOTAL_DOCS) * 100) : 0;
+        var tr = document.getElementById('totalRubrica');
+        if (tr) {
+            tr.textContent = pct + '%';
+            tr.style.color = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-yellow)' : 'var(--color-red)';
+        }
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION ENTRANCE OBSERVER
+    ═══════════════════════════════════════════ */
+
+    function setupSectionObserver() {
+        var obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) e.target.classList.add('section--visible');
+            });
+        }, { threshold: 0.1 });
+
+        $$('[data-section]').forEach(function (s) { obs.observe(s); });
+    }
+
+    /* ═══════════════════════════════════════════
+       NAV SCROLL SPY
+    ═══════════════════════════════════════════ */
+
+    function setupScrollSpy() {
+        var links = $$('.top-nav__link');
+        var targets = $$('[data-section]');
+
+        var obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (!e.isIntersecting) return;
+                var id = e.target.id;
+                links.forEach(function (l) {
+                    l.removeAttribute('aria-current');
+                    if (l.getAttribute('href') === '#' + id) l.setAttribute('aria-current', 'page');
+                });
+            });
+        }, { threshold: 0.25, rootMargin: '0px 0px -30% 0px' });
+
+        targets.forEach(function (t) { obs.observe(t); });
+    }
+
+    /* ═══════════════════════════════════════════
+       NAV TOGGLE (mobile)
+    ═══════════════════════════════════════════ */
+
+    function setupNavToggle() {
+        var btn = document.getElementById('navToggle');
+        var menu = document.getElementById('navLinks');
+        if (!btn || !menu) return;
+
+        btn.addEventListener('click', function () {
+            var open = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', String(!open));
+            menu.classList.toggle('top-nav__links--open', !open);
+        });
+
+        menu.querySelectorAll('a').forEach(function (a) {
+            a.addEventListener('click', function () {
+                btn.setAttribute('aria-expanded', 'false');
+                menu.classList.remove('top-nav__links--open');
+            });
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLL TO TOP
+    ═══════════════════════════════════════════ */
+
+    function setupScrollTop() {
+        var btn = document.getElementById('scrollTop');
+        if (!btn) return;
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                btn.classList.toggle('scroll-top--visible', window.scrollY > 400);
+                ticking = false;
+            });
+        });
+        btn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════ */
+
+    function init() {
+        // 1. Render everything
+        renderAll();
+        renderRubric();
+        renderRubricTotal();
+
+        // 2. Stats
+        updateStats();
+
+        // 3. Search
+        setupSearch('fundamentos');
+        setupSearch('laboratorios');
+        setupSearch('trabajos');
+
+        // 4. Thumbnails (lazy)
+        setupThumbObserver();
+
+        // 5. Observers
+        setupSectionObserver();
+        setupScrollSpy();
+
+        // 6. UI
+        setupNavToggle();
+        setupScrollTop();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

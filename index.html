@@ -2,568 +2,239 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Portafolio Física Aplicada | Juan Valle — UCE 2026</title>
-    <meta name="description" content="Portafolio estudiantil de Física Aplicada — Universidad Central del Ecuador">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio de Física Aplicada — UCE</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=3.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛</text></svg>">
+    <meta name="description" content="Portafolio de Física Aplicada — Universidad Central del Ecuador">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin></script>
 </head>
 <body>
-    <!-- Ambient Background -->
-    <div class="ambient-bg" aria-hidden="true">
-        <div class="ambient-orb ambient-orb--1"></div>
-        <div class="ambient-orb ambient-orb--2"></div>
-        <div class="ambient-orb ambient-orb--3"></div>
-        <div class="grid-overlay"></div>
-    </div>
 
-    <!-- Progress Indicator -->
-    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-
-    <!-- Sticky Top Navigation Header -->
-    <header class="top-header" id="top-header" role="banner">
-        <div class="top-header__inner">
-            <div class="top-header__left">
-                <button class="topbar__menu-btn" id="sidebar-toggle" aria-label="Abrir rúbrica y menú" aria-expanded="false">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                        <rect class="bar bar--top" x="3" y="5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                        <rect class="bar bar--mid" x="3" y="9.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                        <rect class="bar bar--bot" x="3" y="13.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
-                    </svg>
-                </button>
-                <a href="#section-portada" class="top-header__logo" onclick="window.navigateTo('portada'); return false;">
-                    <span class="top-header__dot" aria-hidden="true"></span>
-                    <span class="top-header__logo-text">Física Aplicada UCE</span>
-                </a>
-            </div>
-            
-            <nav class="top-header__nav" aria-label="Navegación superior">
-                <button class="nav-item nav-item--top active" data-section="portada">Carátula</button>
-                <button class="nav-item nav-item--top" data-section="silabo">Sílabo</button>
-                <button class="nav-item nav-item--top" data-section="fundamentos">Fundamentos</button>
-                <button class="nav-item nav-item--top" data-section="laboratorios">Laboratorios</button>
-                <button class="nav-item nav-item--top" data-section="trabajos-grupales">Grupales</button>
-                <button class="nav-item nav-item--top" data-section="trabajos-individuales">Individuales</button>
-                <button class="nav-item nav-item--top" data-section="mapas-mentales">Mapas</button>
-                <button class="nav-item nav-item--top" data-section="recursos">Recursos</button>
-                <button class="nav-item nav-item--top" data-section="pruebas">Pruebas</button>
-                <button class="nav-item nav-item--top" data-section="ensayos">Ensayos</button>
-                <button class="nav-item nav-item--top" data-section="info-personal">Mi Info</button>
-                <button class="nav-item nav-item--top" data-section="creatividad">Creatividad</button>
-            </nav>
-
-            <div class="top-header__right">
-                <div class="top-header__score-widget" id="header-score-widget" title="Puntuación actual de la rúbrica">
-                    <span class="score-label">Rúbrica UCE</span>
-                    <span class="score-value" id="header-rubric-total">-- / --</span>
-                </div>
-                <button class="topbar__theme" id="theme-toggle" aria-label="Cambiar tema" title="Alternar tema">
-                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Sidebar Navigation (Rubric Scorecard / Checklist) -->
-    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Rúbrica y lista de verificación">
-        <div class="sidebar__header">
-            <div class="sidebar__avatar" aria-hidden="true">JV</div>
-            <div class="sidebar__user">
-                <h3 class="sidebar__name">Juan Valle</h3>
-                <span class="sidebar__code">PCEI5-002 · 5to "B"</span>
-            </div>
-        </div>
-
-        <div class="sidebar__nav" id="sidebar-nav">
-            <div class="nav-divider"><span>Lista de Verificación</span></div>
-            <div class="nav-section">
-                <button class="nav-item nav-item--main active" data-section="portada" aria-current="true">
-                    <span class="nav-item__icon" aria-hidden="true">🏠</span>
-                    <span class="nav-item__label">Carátula y CV</span>
-                    <span class="nav-item__badge rubric-badge" data-score="1.0">1.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="silabo">
-                    <span class="nav-item__icon" aria-hidden="true">📋</span>
-                    <span class="nav-item__label">Sílabo</span>
-                    <span class="nav-item__badge rubric-badge" data-score="1.0">1.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="fundamentos">
-                    <span class="nav-item__icon" aria-hidden="true">📚</span>
-                    <span class="nav-item__label">Fundamentos</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="laboratorios">
-                    <span class="nav-item__icon" aria-hidden="true">🔬</span>
-                    <span class="nav-item__label">Laboratorios</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="trabajos-grupales">
-                    <span class="nav-item__icon" aria-hidden="true">👥</span>
-                    <span class="nav-item__label">Trab. Grupales</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="trabajos-individuales">
-                    <span class="nav-item__icon" aria-hidden="true">✏️</span>
-                    <span class="nav-item__label">Trab. Individuales</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="mapas-mentales">
-                    <span class="nav-item__icon" aria-hidden="true">🧠</span>
-                    <span class="nav-item__label">Mapas Mentales</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="recursos">
-                    <span class="nav-item__icon" aria-hidden="true">📸</span>
-                    <span class="nav-item__label">Recursos</span>
-                    <span class="nav-item__badge rubric-badge" data-score="1.0">1.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="pruebas">
-                    <span class="nav-item__icon" aria-hidden="true">📝</span>
-                    <span class="nav-item__label">Pruebas</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="ensayos">
-                    <span class="nav-item__icon" aria-hidden="true">📄</span>
-                    <span class="nav-item__label">Ensayos</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-
-            <div class="nav-divider"><span>General</span></div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="info-personal">
-                    <span class="nav-item__icon" aria-hidden="true">👤</span>
-                    <span class="nav-item__label">Info Personal</span>
-                </button>
-            </div>
-
-            <div class="nav-section">
-                <button class="nav-item nav-item--main" data-section="creatividad">
-                    <span class="nav-item__icon" aria-hidden="true">✨</span>
-                    <span class="nav-item__label">Creatividad</span>
-                    <span class="nav-item__badge rubric-badge" data-score="2.0">2.0</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="sidebar__footer">
-            <div class="rubric-total">
-                <span class="rubric-total__label">Total Rúbrica</span>
-                <span class="rubric-total__score" id="rubric-total">-- / --</span>
-            </div>
-            <span class="sidebar__footer-text">UCE — Física Aplicada 2026</span>
+    <!-- ─── Top Navigation ─── -->
+    <nav class="top-nav" id="topNav" aria-label="Navegación principal">
+        <div class="top-nav__inner">
+            <a href="#hero" class="top-nav__logo">
+                <span class="top-nav__logo-icon">⚛</span>
+                <span class="top-nav__logo-text">Física Aplicada</span>
+            </a>
+            <button class="top-nav__toggle" id="navToggle" aria-label="Menú" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="top-nav__links" id="navLinks">
+                <li><a href="#hero" class="top-nav__link">Inicio</a></li>
+                <li><a href="#rubrica" class="top-nav__link">Rúbrica</a></li>
+                <li><a href="#silabo" class="top-nav__link">Sílabo</a></li>
+                <li><a href="#fundamentos" class="top-nav__link">Fundamentos</a></li>
+                <li><a href="#laboratorios" class="top-nav__link">Laboratorios</a></li>
+                <li><a href="#trabajos" class="top-nav__link">Trabajos</a></li>
+                <li><a href="#mapas" class="top-nav__link">Mapas</a></li>
+                <li><a href="#pruebas" class="top-nav__link">Pruebas</a></li>
+                <li><a href="#recursos" class="top-nav__link">Recursos</a></li>
+            </ul>
         </div>
     </nav>
 
-    <!-- Mobile Overlay -->
-    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
-
-    <!-- Main Content Container -->
-    <main class="main" id="main-content">
-        <div class="content-area" id="content-area">
-            <!-- 1. PORTADA -->
-            <section id="section-portada" class="section active" data-rubric="1.0" aria-labelledby="portada-title">
-                <div class="section-header">
-                    <h1 id="portada-title" class="section-title">Carátula y Hoja de Vida</h1>
-                    <span class="rubric-score" data-max="1.0">1.0 / 1.0</span>
-                </div>
-
-                <div class="portada-card">
-                    <div class="portada__chip">UCE — 2026</div>
-                    <h2 class="portada__institution">Universidad Central del Ecuador</h2>
-                    <p class="portada__faculty">Facultad de Filosofía, Letras y Ciencias de la Educación</p>
-                    <p class="portada__career">Pedagogía de las Ciencias Experimentales — Informática</p>
-                    <p class="portada__subject">Física Aplicada</p>
-
-                    <div class="portada__divider" aria-hidden="true"></div>
-
-                    <h1 class="portada__title">FÍSICA APLICADA</h1>
-                    <h2 class="portada__subtitle">PORTAFOLIO ESTUDIANTIL</h2>
-
-                    <div class="portada__info">
-                        <div class="portada__info-item">
-                            <span class="portada__info-label">Estudiante</span>
-                            <span class="portada__info-value">Juan Valle</span>
-                        </div>
-                        <div class="portada__info-item">
-                            <span class="portada__info-label">Semestre</span>
-                            <span class="portada__info-value">5to "B"</span>
-                        </div>
-                        <div class="portada__info-item">
-                            <span class="portada__info-label">Período</span>
-                            <span class="portada__info-value">2026</span>
-                        </div>
-                        <div class="portada__info-item">
-                            <span class="portada__info-label">Código</span>
-                            <span class="portada__info-value">PCEI5-002</span>
-                        </div>
-                    </div>
-
-                    <div class="portada__actions">
-                        <button class="btn btn--primary" onclick="downloadCV()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                            Descargar CV
-                        </button>
-                        <button class="btn btn--secondary" onclick="navigateTo('info-personal')">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            Ver Hoja de Vida
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Quick Access Grid -->
-                <div class="quick-access">
-                    <h3 class="quick-access__title">Accesos Directos</h3>
-                    <div class="quick-access__grid" id="quick-access-grid">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. SÍLABO -->
-            <section id="section-silabo" class="section" data-rubric="1.0" aria-labelledby="silabo-title">
-                <div class="section-header">
-                    <h1 id="silabo-title" class="section-title">Sílabo</h1>
-                    <span class="rubric-score" data-max="1.0">1.0 / 1.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Incluye el sílabo completo y subrayado según las indicaciones</h4>
-                    <div class="criteria-status status--complete">✓ Completo</div>
-                </div>
-
-                <div class="document-grid" id="grid-silabo">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 3. FUNDAMENTOS CONCEPTUALES -->
-            <section id="section-fundamentos" class="section" data-rubric="2.0" aria-labelledby="fundamentos-title">
-                <div class="section-header">
-                    <h1 id="fundamentos-title" class="section-title">Fundamentos Conceptuales</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta los 10 fundamentos conceptuales completos, desarrollados y organizados</h4>
-                    <div class="criteria-status status--complete">✓ 4/4 entregados (pendientes 6)</div>
-                </div>
-
-                <div class="document-grid" id="grid-fundamentos">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 4. LABORATORIOS -->
-            <section id="section-laboratorios" class="section" data-rubric="2.0" aria-labelledby="laboratorios-title">
-                <div class="section-header">
-                    <h1 id="laboratorios-title" class="section-title">Laboratorios del Centro de Física</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta los 10 laboratorios completos con sus respectivas evidencias</h4>
-                    <div class="criteria-status status--partial">⚠ 3/10 entregados</div>
-                </div>
-
-                <div class="document-grid" id="grid-laboratorios">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 5. TRABAJOS GRUPALES -->
-            <section id="section-trabajos-grupales" class="section" data-rubric="2.0" aria-labelledby="grupales-title">
-                <div class="section-header">
-                    <h1 id="grupales-title" class="section-title">Trabajos Grupales</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todos los trabajos grupales solicitados y completos</h4>
-                    <div class="criteria-status status--partial">⚠ 1/2 entregados</div>
-                </div>
-
-                <div class="document-grid" id="grid-grupales">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 6. TRABAJOS INDIVIDUALES -->
-            <section id="section-trabajos-individuales" class="section" data-rubric="2.0" aria-labelledby="individuales-title">
-                <div class="section-header">
-                    <h1 id="individuales-title" class="section-title">Trabajos Individuales</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todos los trabajos individuales completos</h4>
-                    <div class="criteria-status status--pending">⌛ Pendientes de entrega</div>
-                </div>
-
-                <div class="document-grid" id="grid-individuales">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 7. MAPAS MENTALES -->
-            <section id="section-mapas-mentales" class="section" data-rubric="2.0" aria-labelledby="mapas-title">
-                <div class="section-header">
-                    <h1 id="mapas-title" class="section-title">Mapas Mentales</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todos los mapas mentales completos, claros y organizados</h4>
-                    <div class="criteria-status status--complete">✓ 4/4 entregados</div>
-                </div>
-
-                <div class="document-grid" id="grid-mapas">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 8. RECURSOS -->
-            <section id="section-recursos" class="section" data-rubric="1.0" aria-labelledby="recursos-title">
-                <div class="section-header">
-                    <h1 id="recursos-title" class="section-title">Capturas o Videos de Recursos</h1>
-                    <span class="rubric-score" data-max="1.0">1.0 / 1.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todas las capturas o videos como evidencia del uso de los recursos</h4>
-                    <div class="criteria-status status--partial">⚠ 2/3 entregados</div>
-                </div>
-
-                <div class="media-grid" id="grid-recursos">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 9. PRUEBAS -->
-            <section id="section-pruebas" class="section" data-rubric="2.0" aria-labelledby="pruebas-title">
-                <div class="section-header">
-                    <h1 id="pruebas-title" class="section-title">Pruebas de Plataforma</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todas las pruebas realizadas en la plataforma</h4>
-                    <div class="criteria-status status--complete">✓ 2/2 entregados</div>
-                </div>
-
-                <div class="document-grid" id="grid-pruebas">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 10. ENSAYOS -->
-            <section id="section-ensayos" class="section" data-rubric="2.0" aria-labelledby="ensayos-title">
-                <div class="section-header">
-                    <h1 id="ensayos-title" class="section-title">Ensayos</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: Presenta todos los ensayos completos, con buena redacción, ortografía y contenido</h4>
-                    <div class="criteria-status status--pending">⌛ Pendientes de entrega</div>
-                </div>
-
-                <div class="document-grid" id="grid-ensayos">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-
-            <!-- 11. INFORMACIÓN PERSONAL -->
-            <section id="section-info-personal" class="section" aria-labelledby="info-title">
-                <div class="section-header">
-                    <h1 id="info-title" class="section-title">Información Personal</h1>
-                    <span class="rubric-score" data-max="—">Hoja de Vida</span>
-                </div>
-
-                <div class="cv-preview">
-                    <div class="cv-card">
-                        <div class="cv-card__header">
-                            <div class="cv-avatar" aria-hidden="true">JV</div>
-                            <div>
-                                <h3>Juan Valle</h3>
-                                <p class="cv-role">Estudiante — Pedagogía de las Ciencias Experimentales</p>
-                            </div>
-                        </div>
-                        <div class="cv-card__details">
-                            <div class="cv-detail">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                <span>Quito, Ecuador</span>
-                            </div>
-                            <div class="cv-detail">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h12M12 4v4M12 16v4"/></svg>
-                                <span>Universidad Central del Ecuador</span>
-                            </div>
-                            <div class="cv-detail">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01 l-3-3"/></svg>
-                                <span>5to Semestre "B" — 2026</span>
-                            </div>
-                            <div class="cv-detail">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                                <span>Código: PCEI5-002</span>
-                            </div>
-                        </div>
-                        <button class="btn btn--primary btn--full" onclick="downloadCV()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                            Descargar Currículum Completo (PDF)
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 12. CREATIVIDAD -->
-            <section id="section-creatividad" class="section" data-rubric="2.0" aria-labelledby="creatividad-title">
-                <div class="section-header">
-                    <h1 id="creatividad-title" class="section-title">Creatividad y Diseño</h1>
-                    <span class="rubric-score" data-max="2.0">2.0 / 2.0</span>
-                </div>
-
-                <div class="rubric-criteria">
-                    <h4>Criterio: El portafolio presenta un diseño original, creativo, atractivo y demuestra dedicación en la elaboración</h4>
-                    <div class="criteria-status status--complete">✓ Nivel A — Diseño original y creativo</div>
-                </div>
-
-                <div class="creativity-showcase">
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">🎨</div>
-                        <h4>Diseño Original</h4>
-                        <p>Interfaz dark-mode con sistema de diseño cohesivo, tokens de color OKLCH, tipografía Space Grotesk + Inter, y ambient background animado.</p>
-                    </div>
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">⚡</div>
-                        <h4>Micro-interacciones</h4>
-                        <p>Animaciones de entrada escalonadas, hover states con transform, transiciones suaves (cubic-bezier), respecta prefers-reduced-motion.</p>
-                    </div>
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">📱</div>
-                        <h4>Totalmente Responsivo</h4>
-                        <p>Sidebar colapsable en desktop, drawer en mobile, grid adaptativo, touch-friendly, viewport estable (100dvh).</p>
-                    </div>
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">🔍</div>
-                        <h4>Previsualización PDF</h4>
-                        <p>Thumbnails generados con PDF.js, overlay de visualización, carga perezosa, fallback elegante para errores.</p>
-                    </div>
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">♿</div>
-                        <h4>Accesibilidad WCAG 2.1 AA</h4>
-                        <p>Contraste ≥4.5:1, focus visible, ARIA labels, navegación por teclado, semántica HTML5, reduced motion.</p>
-                    </div>
-                    <div class="creativity-card">
-                        <div class="creativity-card__icon" aria-hidden="true">📊</div>
-                        <h4>Rúbrica Integrada</h4>
-                        <p>Cada sección muestra su criterio, puntuación máxima y estado de completitud. Total dinámico en sidebar.</p>
-                    </div>
-                </div>
-            </section>
+    <!-- ─── Hero ─── -->
+    <section class="hero" id="hero">
+        <div class="hero__bg"></div>
+        <div class="hero__content">
+            <div class="hero__badge">Universidad Central del Ecuador</div>
+            <h1 class="hero__title">Portafolio de <br>Física Aplicada</h1>
+            <p class="hero__subtitle">Facultad de Filosofía, Letras y Ciencias de la Educación &middot; Pedagogía de las Ciencias Experimentales Informática</p>
+            <div class="hero__actions">
+                <a href="#rubrica" class="hero__btn hero__btn--primary">Ver Rúbrica</a>
+                <a href="#fundamentos" class="hero__btn hero__btn--outline">Explorar Documentos</a>
+            </div>
+            <div class="hero__quick">
+                <a href="#silabo" class="quick-chip">📋 Sílabo</a>
+                <a href="#fundamentos" class="quick-chip">📚 Fundamentos</a>
+                <a href="#laboratorios" class="quick-chip">🔬 Laboratorios</a>
+                <a href="#trabajos" class="quick-chip">👥 Trabajos</a>
+                <a href="#mapas" class="quick-chip">🧠 Mapas</a>
+                <a href="#pruebas" class="quick-chip">📝 Pruebas</a>
+                <a href="#recursos" class="quick-chip">📎 Recursos</a>
+            </div>
         </div>
+    </section>
 
-        <!-- PDF Viewer Modal -->
-        <dialog id="pdf-modal" class="pdf-modal" aria-modal="true" aria-labelledby="modal-title">
-            <div class="pdf-modal__backdrop" tabindex="-1"></div>
-            <div class="pdf-modal__container">
-                <header class="pdf-modal__header">
-                    <h2 id="modal-title" class="pdf-modal__title">Visor de Documento</h2>
-                    <div class="pdf-modal__actions">
-                        <button class="icon-btn" id="modal-download" aria-label="Descargar PDF" title="Descargar">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                        </button>
-                        <button class="icon-btn" id="modal-fullscreen" aria-label="Pantalla completa" title="Pantalla completa">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                        </button>
-                        <button class="icon-btn pdf-modal__close" id="modal-close" aria-label="Cerrar visor" title="Cerrar">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                        </button>
-                    </div>
-                </header>
-                <div class="pdf-modal__viewer">
-                    <canvas id="pdf-canvas" class="pdf-canvas"></canvas>
-                    <div class="pdf-loading" id="pdf-loading" aria-live="polite">
-                        <div class="spinner"></div>
-                        <span>Cargando documento...</span>
-                    </div>
-                    <div class="pdf-error hidden" id="pdf-error" aria-live="assertive">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-                        <p>No se pudo cargar el PDF</p>
-                        <button class="btn btn--secondary" id="pdf-retry">Reintentar</button>
-                    </div>
-                </div>
-                <footer class="pdf-modal__footer">
-                    <div class="pdf-nav">
-                        <button class="icon-btn" id="pdf-prev" aria-label="Página anterior" disabled>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-                        </button>
-                        <span class="pdf-page-info" id="pdf-page-info">Página 1 de 1</span>
-                        <button class="icon-btn" id="pdf-next" aria-label="Página siguiente" disabled>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-                        </button>
-                    </div>
-                    <div class="pdf-zoom">
-                        <button class="icon-btn" id="pdf-zoom-out" aria-label="Alejar" title="Alejar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h8"/></svg></button>
-                        <span id="pdf-zoom-level">100%</span>
-                        <button class="icon-btn" id="pdf-zoom-in" aria-label="Acercar" title="Acercar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg></button>
-                    </div>
-                </footer>
+    <!-- ─── Stats ─── -->
+    <section class="stats" id="stats">
+        <div class="stats__grid">
+            <div class="stat-card">
+                <span class="stat-card__num" id="totalDocs">0</span>
+                <span class="stat-card__label">Documentos</span>
             </div>
-        </dialog>
-
-        <!-- Image Viewer Modal -->
-        <dialog id="img-modal" class="img-modal" aria-modal="true" aria-labelledby="img-modal-title">
-            <div class="img-modal__backdrop" tabindex="-1"></div>
-            <div class="img-modal__container">
-                <header class="img-modal__header">
-                    <h2 id="img-modal-title" class="img-modal__title">Visor de Imagen</h2>
-                    <button class="icon-btn img-modal__close" id="img-modal-close" aria-label="Cerrar visor">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                    </button>
-                </header>
-                <div class="img-modal__viewer">
-                    <img id="img-modal-image" src="" alt="" class="img-modal__image">
-                </div>
+            <div class="stat-card">
+                <span class="stat-card__num" id="totalRubrica">0%</span>
+                <span class="stat-card__label">Rúbrica</span>
             </div>
-        </dialog>
-    </main>
+            <div class="stat-card">
+                <span class="stat-card__num" id="favoritosCount">0</span>
+                <span class="stat-card__label">Favoritos</span>
+            </div>
+        </div>
+    </section>
 
-    <!-- PDF.js Worker -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
-    <script type="module" src="script.js?v=3.0"></script>
+    <!-- ─── Rúbrica ─── -->
+    <section class="section" id="rubrica" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Rúbrica de Evaluación</h2>
+            <p class="section__desc">Autoevaluación del portafolio según los criterios UCE</p>
+        </div>
+        <div class="rubrica-table" id="rubricaTable">
+            <!-- rendered by JS -->
+        </div>
+        <div class="rubrica-total" id="rubricaTotal">
+            <span class="rubrica-total__label">Puntaje Total</span>
+            <span class="rubrica-total__score" id="rubricaScore">0.0 / 20.0</span>
+            <div class="rubrica-total__bar">
+                <div class="rubrica-total__fill" id="rubricaFill" style="width:0%"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Sílabo ─── -->
+    <section class="section" id="silabo" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Sílabo</h2>
+            <p class="section__desc">Programa del curso subrayado según indicaciones</p>
+        </div>
+        <div class="document-grid" id="grid-silabo"></div>
+    </section>
+
+    <!-- ─── Carátula ─── -->
+    <section class="section" id="caratula" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Carátula y Hoja de Vida</h2>
+            <p class="section__desc">Presentación con datos organizados</p>
+        </div>
+        <div class="document-grid" id="grid-caratula"></div>
+    </section>
+
+    <!-- ─── Fundamentos Conceptuales ─── -->
+    <section class="section" id="fundamentos" data-section>
+        <div class="section__header">
+            <h2 class="section__title">10 Fundamentos Conceptuales</h2>
+            <p class="section__desc">Portafolios con fundamentos desarrollados y organizados</p>
+        </div>
+        <div class="section__controls">
+            <div class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-box__input" id="searchFundamentos" placeholder="Buscar en fundamentos..." aria-label="Buscar">
+            </div>
+            <button class="btn" id="filterFundamentos" aria-label="Filtrar favoritos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Filtrar
+            </button>
+        </div>
+        <div class="document-grid" id="grid-fundamentos"></div>
+    </section>
+
+    <!-- ─── Laboratorios ─── -->
+    <section class="section" id="laboratorios" data-section>
+        <div class="section__header">
+            <h2 class="section__title">10 Laboratorios del Centro de Física</h2>
+            <p class="section__desc">Prácticas con evidencias y resultados</p>
+        </div>
+        <div class="section__controls">
+            <div class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-box__input" id="searchLaboratorios" placeholder="Buscar en laboratorios..." aria-label="Buscar">
+            </div>
+            <button class="btn" id="filterLaboratorios" aria-label="Filtrar favoritos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Filtrar
+            </button>
+        </div>
+        <div class="document-grid" id="grid-laboratorios"></div>
+    </section>
+
+    <!-- ─── Trabajos ─── -->
+    <section class="section" id="trabajos" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Trabajos Grupales e Individuales</h2>
+            <p class="section__desc">Proyectos colaborativos y trabajos autónomos</p>
+        </div>
+        <div class="section__controls">
+            <div class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-box__input" id="searchTrabajos" placeholder="Buscar en trabajos..." aria-label="Buscar">
+            </div>
+            <button class="btn" id="filterTrabajos" aria-label="Filtrar favoritos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                Filtrar
+            </button>
+        </div>
+        <div class="document-grid" id="grid-trabajos"></div>
+    </section>
+
+    <!-- ─── Mapas Mentales ─── -->
+    <section class="section" id="mapas" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Mapas Mentales</h2>
+            <p class="section__desc">Organizadores gráficos claros y estructurados</p>
+        </div>
+        <div class="document-grid" id="grid-mapas"></div>
+    </section>
+
+    <!-- ─── Ensayos ─── -->
+    <section class="section" id="ensayos" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Ensayos</h2>
+            <p class="section__desc">Ensayos académicos con redacción y contenido</p>
+        </div>
+        <div class="document-grid" id="grid-ensayos"></div>
+    </section>
+
+    <!-- ─── Pruebas de Plataforma ─── -->
+    <section class="section" id="pruebas" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Pruebas de Plataforma</h2>
+            <p class="section__desc">Evaluaciones y cuestionarios realizados</p>
+        </div>
+        <div class="document-grid" id="grid-pruebas"></div>
+    </section>
+
+    <!-- ─── Recursos ─── -->
+    <section class="section" id="recursos" data-section>
+        <div class="section__header">
+            <h2 class="section__title">Capturas y Recursos</h2>
+            <p class="section__desc">Evidencias del uso de recursos y material complementario</p>
+        </div>
+        <div class="resources-grid" id="grid-recursos"></div>
+    </section>
+
+    <!-- ─── Footer ─── -->
+    <footer class="footer">
+        <div class="footer__inner">
+            <div class="footer__brand">
+                <h3 class="footer__title">Portafolio de Física Aplicada</h3>
+                <p class="footer__text">Universidad Central del Ecuador — Facultad de Filosofía, Letras y Ciencias de la Educación</p>
+            </div>
+            <div class="footer__links">
+                <h4>Enlaces</h4>
+                <ul>
+                    <li><a href="#rubrica">Rúbrica</a></li>
+                    <li><a href="#fundamentos">Fundamentos</a></li>
+                    <li><a href="#laboratorios">Laboratorios</a></li>
+                    <li><a href="#recursos">Recursos</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <p>&copy; 2026 Portafolio de Física Aplicada. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- ─── Scroll to Top ─── -->
+    <button class="scroll-top" id="scrollTop" aria-label="Volver arriba">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -45,31 +45,14 @@
         ],
     };
 
-    const RUBRIC = [
-        { name: 'Carátula y hoja de vida', desc: 'Presenta datos completos y organizados', max: 1.0, values: [0, 0.5, 1.0] },
-        { name: 'Sílabo', desc: 'Incluye sílabo completo y subrayado', max: 1.0, values: [0, 0.5, 1.0] },
-        { name: '10 Fundamentos Conceptuales', desc: 'Completos, desarrollados y organizados', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: '10 Laboratorios del Centro de Física', desc: 'Completos con evidencias', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'N.° Trabajos Grupales', desc: 'Solicitados y completos', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'N.° Trabajos Individuales', desc: 'Completos', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'N.° Mapas Mentales', desc: 'Completos, claros y organizados', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'Capturas o videos de recursos', desc: 'Evidencias del uso de recursos', max: 1.0, values: [0, 0.5, 1.0] },
-        { name: 'Pruebas de plataforma', desc: 'Todas las pruebas realizadas', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'Ensayos', desc: 'Buena redacción, ortografía y contenido', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'Creatividad', desc: 'Diseño original, creativo y atractivo', max: 2.0, values: [0, 1.0, 2.0] },
-        { name: 'Orden', desc: 'Organizado, limpio, secuencia lógica', max: 1.0, values: [0, 0.5, 1.0] },
-    ];
-
     const ALL_ITEMS = Object.values(DOCS).reduce((a, b) => a.concat(b), []);
     const TOTAL_DOCS = ALL_ITEMS.length;
-    const RUBRIC_MAX = RUBRIC.reduce((s, r) => s + r.max, 0);
 
     /* ═══════════════════════════════════════════
        STATE
     ═══════════════════════════════════════════ */
 
     let favorites = loadFavorites();
-    let rubricScores = loadRubricScores();
 
     /* ═══════════════════════════════════════════
        DOM HELPERS
@@ -119,27 +102,6 @@
 
     function isFav(file) { return favorites.includes(file); }
 
-    /* ═══════════════════════════════════════════
-       RUBRIC SCORES
-    ═══════════════════════════════════════════ */
-
-    function loadRubricScores() {
-        try { return JSON.parse(localStorage.getItem('prubric')) || {}; } catch { return {}; }
-    }
-
-    function saveRubricScores() {
-        localStorage.setItem('prubric', JSON.stringify(rubricScores));
-    }
-
-    function getRubricScore(idx) {
-        return rubricScores[idx] !== undefined ? rubricScores[idx] : 0;
-    }
-
-    function setRubricScore(idx, val) {
-        rubricScores[idx] = val;
-        saveRubricScores();
-        renderRubricTotal();
-    }
 
     /* ═══════════════════════════════════════════
        ESCAPE
@@ -354,63 +316,6 @@
         });
     }
 
-    /* ═══════════════════════════════════════════
-       RENDER: RUBRIC
-    ═══════════════════════════════════════════ */
-
-    function renderRubric() {
-        var table = document.getElementById('rubricaTable');
-        if (!table) return;
-        table.innerHTML = '';
-
-        RUBRIC.forEach(function (r, idx) {
-            var row = document.createElement('div');
-            row.className = 'rubrica-row';
-
-            var info = document.createElement('div');
-            info.className = 'rubrica-row__info';
-            info.innerHTML = '<div class="rubrica-row__name">' + esc(r.name) + '</div><div class="rubrica-row__desc">' + esc(r.desc) + '</div>';
-
-            var maxEl = document.createElement('div');
-            maxEl.className = 'rubrica-row__max';
-            maxEl.textContent = r.max.toFixed(1);
-
-            var scores = document.createElement('div');
-            scores.className = 'rubrica-row__scores';
-
-            var current = getRubricScore(idx);
-
-            r.values.forEach(function (v) {
-                var btn = document.createElement('button');
-                btn.className = 'rubrica-opt' + (v === current ? ' rubrica-opt--active' : '');
-                btn.textContent = v.toFixed(v % 1 === 0 ? 0 : 1);
-                btn.addEventListener('click', function () {
-                    setRubricScore(idx, v);
-                    // update UI
-                    row.querySelectorAll('.rubrica-opt').forEach(function (b) {
-                        b.classList.toggle('rubrica-opt--active', parseFloat(b.textContent) === v);
-                    });
-                });
-                scores.appendChild(btn);
-            });
-
-            row.appendChild(info);
-            row.appendChild(maxEl);
-            row.appendChild(scores);
-            table.appendChild(row);
-        });
-    }
-
-    function renderRubricTotal() {
-        var total = 0;
-        RUBRIC.forEach(function (r, idx) {
-            total += getRubricScore(idx);
-        });
-        var el = document.getElementById('rubricaScore');
-        var fill = document.getElementById('rubricaFill');
-        if (el) el.textContent = total.toFixed(1) + ' / ' + RUBRIC_MAX.toFixed(1);
-        if (fill) fill.style.width = Math.min(100, (total / RUBRIC_MAX) * 100) + '%';
-    }
 
     /* ═══════════════════════════════════════════
        SEARCH & FILTER
@@ -467,13 +372,6 @@
 
         var fv = document.getElementById('favoritosCount');
         if (fv) fv.textContent = favorites.length;
-
-        var pct = TOTAL_DOCS > 0 ? Math.round((favorites.length / TOTAL_DOCS) * 100) : 0;
-        var tr = document.getElementById('totalRubrica');
-        if (tr) {
-            tr.textContent = pct + '%';
-            tr.style.color = pct >= 80 ? 'var(--color-green)' : pct >= 40 ? 'var(--color-yellow)' : 'var(--color-red)';
-        }
     }
 
     /* ═══════════════════════════════════════════
@@ -588,8 +486,6 @@
     function init() {
         // 1. Render everything
         renderAll();
-        renderRubric();
-        renderRubricTotal();
 
         // 2. Stats
         updateStats();

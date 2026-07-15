@@ -146,10 +146,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   updateProgressBar();
   calculateRubricTotal();
-  showSection('portada');
-
-  // Preload first page thumbnails
-  preloadThumbnails();
+  setupScrollSpy();
+  setupThumbnailLazyLoading();
 });
 
 function initializeTheme() {
@@ -176,10 +174,18 @@ function buildQuickAccess() {
   });
 }
 
+function getContainerId(sectionId) {
+  if (sectionId === 'trabajos-grupales') return 'grid-grupales';
+  if (sectionId === 'trabajos-individuales') return 'grid-individuales';
+  if (sectionId === 'mapas-mentales') return 'grid-mapas';
+  return `grid-${sectionId}`;
+}
+
 function renderAllDocumentGrids() {
   SECTION_ORDER.forEach(sectionId => {
     if (sectionId === 'portada' || sectionId === 'info-personal' || sectionId === 'creatividad') return;
-    const grid = document.getElementById(`grid-${sectionId.replace('-', '-')}`);
+    const containerId = getContainerId(sectionId);
+    const grid = document.getElementById(containerId);
     if (grid) renderDocumentGrid(sectionId, grid);
   });
 }
@@ -201,6 +207,7 @@ function renderDocumentGrid(sectionId, container) {
     <article class="preview-card" data-file="${item.file}" data-title="${item.title}" style="animation-delay: ${i * 50}ms">
       <div class="preview-card__thumb" id="thumb-${item.id}">
         <canvas class="pdf-thumb"></canvas>
+        <div class="thumb-spinner" aria-hidden="true"><div class="spinner spinner-small"></div></div>
         <div class="preview-card__overlay">
           <button class="preview-btn" aria-label="Ver ${item.title}">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -214,7 +221,7 @@ function renderDocumentGrid(sectionId, container) {
       <div class="preview-card__info">
         <h4 class="preview-card__title">${item.title}</h4>
         <p class="preview-card__meta">${formatFileName(item.file)}</p>
-        <span class="preview-card__badge badge--pending">Pendiente</span>
+        <span class="preview-card__badge badge--complete">Entregado</span>
       </div>
     </article>
   `).join('');
@@ -229,9 +236,6 @@ function renderDocumentGrid(sectionId, container) {
       openPreview(card.dataset.file, card.dataset.title);
     });
   });
-
-  // Generate thumbnails
-  data.items.forEach(item => generateThumbnail(item.file, `thumb-${item.id}`));
 }
 
 function renderMediaGrid(sectionId, container) {
@@ -250,7 +254,7 @@ function renderMediaGrid(sectionId, container) {
   container.innerHTML = data.items.map((item, i) => `
     <article class="media-card" data-file="${item.file}" data-title="${item.title}" style="animation-delay: ${i * 50}ms">
       <div class="media-card__thumb" id="thumb-${item.id}">
-        ${item.type === 'image' ? `<img src="${item.file}" alt="${item.title}" loading="lazy">` : `<canvas class="pdf-thumb"></canvas>`}
+        ${item.type === 'image' ? `<img src="${item.file}" alt="${item.title}" loading="lazy">` : `<canvas class="pdf-thumb"></canvas><div class="thumb-spinner" aria-hidden="true"><div class="spinner spinner-small"></div></div>`}
         <div class="media-card__overlay">
           <button class="preview-btn" aria-label="Ver ${item.title}">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -263,7 +267,7 @@ function renderMediaGrid(sectionId, container) {
       </div>
       <div class="media-card__info">
         <h4 class="media-card__title">${item.title}</h4>
-        <span class="media-card__badge badge--pending">Pendiente</span>
+        <span class="media-card__badge badge--complete">Entregado</span>
       </div>
     </article>
   `).join('');
@@ -278,10 +282,6 @@ function renderMediaGrid(sectionId, container) {
       openPreview(card.dataset.file, card.dataset.title);
     });
   });
-
-  data.items.forEach(item => {
-    if (item.type === 'pdf') generateThumbnail(item.file, `thumb-${item.id}`);
-  });
 }
 
 // Override renderDocumentGrid for recursos
@@ -294,108 +294,245 @@ renderDocumentGrid = function(sectionId, container) {
   }
 };
 
-// ── Thumbnail Generation ───────────────────────
-async function generateThumbnail(filePath, thumbId) {
-  if (pdfThumbsCache.has(filePath)) {
-    const cached = pdfThumbsCache.get(filePath);
-    applyThumbnail(thumbId, cached);
-    return;
+// ── Thumbnail Generation & Queue & Caching ─────
+let thumbnailQueue = [];
+let isProcessingQueue = false;
+
+function setupThumbnailLazyLoading() {
+  const cards = document.querySelectorAll('.preview-card, .media-card');
+  const observerOptions = {
+    root: contentArea,
+    rootMargin: '200px 0px', // Preload when card is 200px close
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        const file = card.dataset.file;
+        const thumbContainer = card.querySelector('.preview-card__thumb, .media-card__thumb');
+        
+        if (thumbContainer) {
+          const thumbId = thumbContainer.id;
+          const isImageJpg = card.classList.contains('media-card') && file.endsWith('.jpg');
+
+          if (thumbId && !isImageJpg) {
+            // Check memory cache
+            if (pdfThumbsCache.has(file)) {
+              applyThumbnail(thumbId, pdfThumbsCache.get(file));
+            } else {
+              // Try loading from localStorage cache
+              const cached = loadFromLocalStorage(file);
+              if (cached) {
+                pdfThumbsCache.set(file, cached);
+                applyThumbnail(thumbId, cached);
+              } else {
+                // Queue generation
+                queueThumbnail(file, thumbId);
+              }
+            }
+          }
+        }
+        observer.unobserve(card); // Process only once
+      }
+    });
+  }, observerOptions);
+
+  cards.forEach(card => observer.observe(card));
+}
+
+function queueThumbnail(file, thumbId) {
+  if (thumbnailQueue.some(t => t.thumbId === thumbId)) return;
+  thumbnailQueue.push({ file, thumbId });
+  processThumbnailQueue();
+}
+
+async function processThumbnailQueue() {
+  if (isProcessingQueue || thumbnailQueue.length === 0) return;
+  isProcessingQueue = true;
+
+  const task = thumbnailQueue.shift();
+  try {
+    await renderThumbnailTask(task.file, task.thumbId);
+  } catch (err) {
+    console.warn('Queue task failed', task, err);
   }
 
+  isProcessingQueue = false;
+  setTimeout(processThumbnailQueue, 50); // Pause briefly between heavy renders
+}
+
+async function renderThumbnailTask(filePath, thumbId) {
   try {
+    if (typeof pdfjsLib === 'undefined') {
+      throw new Error('PDF.js not loaded');
+    }
     const pdf = await pdfjsLib.getDocument(filePath).promise;
     const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 0.35 });
+    
+    // Scale very small (0.2) to minimize resource usage and memory footprint
+    const viewport = page.getViewport({ scale: 0.20 });
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
     await page.render({ canvasContext: ctx, viewport }).promise;
-    const dataUrl = canvas.toDataURL('image/webp', 0.7);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.65); // Highly compressed JPEGs
+
     pdfThumbsCache.set(filePath, dataUrl);
+    saveToLocalStorage(filePath, dataUrl);
     applyThumbnail(thumbId, dataUrl);
   } catch (err) {
-    console.warn('Thumbnail failed for', filePath, err);
-    applyThumbnail(thumbId, null);
+    console.warn('CORS or loading error generating thumbnail for:', filePath, err);
+    applyThumbnail(thumbId, null); // Elegant CSS fallback
   }
 }
 
 function applyThumbnail(thumbId, dataUrl) {
   const thumbEl = document.getElementById(thumbId);
   if (!thumbEl) return;
+  
   const canvas = thumbEl.querySelector('canvas.pdf-thumb');
+  const spinner = thumbEl.querySelector('.thumb-spinner');
+
   if (canvas && dataUrl) {
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
+      canvas.style.display = 'block';
       ctx.drawImage(img, 0, 0);
+      if (spinner) spinner.remove();
     };
     img.src = dataUrl;
-  } else if (canvas) {
-    canvas.style.display = 'none';
-    thumbEl.style.background = 'linear-gradient(135deg, var(--bg-hover), var(--bg-card))';
-    thumbEl.innerHTML += '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin: auto;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  } else {
+    // Elegant fallback: remove canvas and spinner, render CSS premium cover
+    if (canvas) canvas.style.display = 'none';
+    if (spinner) spinner.remove();
+
+    const existingFallback = thumbEl.querySelector('.pdf-fallback-cover');
+    if (!existingFallback) {
+      const fallback = document.createElement('div');
+      fallback.className = 'pdf-fallback-cover';
+
+      // Get short display name
+      const fileLabel = thumbId.replace('thumb-', '')
+                              .replace('fund-', 'Fundamento ')
+                              .replace('lab-', 'Laboratorio ')
+                              .replace('grupal-', 'Grupal ')
+                              .replace('tarea-', 'Tarea ')
+                              .replace('mapa-', 'Mapa ')
+                              .replace('prueba-', 'Prueba ')
+                              .replace('recurso-', 'Recurso ')
+                              .replace('silabo', 'Sílabo');
+
+      fallback.innerHTML = `
+        <div class="pdf-fallback-cover__logo">PDF</div>
+        <div class="pdf-fallback-cover__title">${fileLabel}</div>
+      `;
+      thumbEl.appendChild(fallback);
+    }
   }
 }
 
-async function preloadThumbnails() {
-  const allFiles = [];
-  Object.values(DOCUMENTS).forEach(data => {
-    data.items.forEach(item => {
-      if (item.type === 'pdf') allFiles.push(item.file);
-    });
-  });
-  // Load first 6 in parallel
-  await Promise.all(allFiles.slice(0, 6).map(f => generateThumbnail(f, `thumb-${f}`)));
+function saveToLocalStorage(file, dataUrl) {
+  try {
+    localStorage.setItem('pdf_thumb_' + file, dataUrl);
+  } catch (e) {
+    console.warn('LocalStorage full, clearing cache');
+    clearLocalStorageCache();
+  }
 }
 
-// ── Navigation ─────────────────────────────────
+function loadFromLocalStorage(file) {
+  try {
+    return localStorage.getItem('pdf_thumb_' + file);
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearLocalStorageCache() {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('pdf_thumb_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
+}
+
+// ── Navigation & ScrollSpy ─────────────────────
 function navigateTo(sectionId) {
   if (!DOCUMENTS[sectionId]) return;
-  showSection(sectionId);
-  updateSidebarActive(sectionId);
-  updateProgressBar();
-  closeSidebarMobile();
-}
-
-function showSection(sectionId) {
-  const sections = document.querySelectorAll('.section');
-  sections.forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
-  });
-
   const target = document.getElementById(`section-${sectionId}`);
   if (target) {
-    target.style.display = 'block';
-    requestAnimationFrame(() => target.classList.add('active'));
-    currentSection = sectionId;
-    currentSectionEl.textContent = DOCUMENTS[sectionId].title;
-    document.title = `${DOCUMENTS[sectionId].title} | Portafolio Física Aplicada`;
+    target.scrollIntoView({ behavior: 'smooth' });
+    updateSidebarActive(sectionId);
+    updateTopNavActive(sectionId);
   }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateSidebarActive(sectionId) {
-  document.querySelectorAll('.nav-item').forEach(btn => {
+  document.querySelectorAll('.sidebar .nav-item').forEach(btn => {
     btn.classList.remove('active');
     btn.removeAttribute('aria-current');
   });
-  const activeBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+  const activeBtn = document.querySelector(`.sidebar .nav-item[data-section="${sectionId}"]`);
   if (activeBtn) {
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-current', 'true');
   }
 }
 
+function updateTopNavActive(sectionId) {
+  document.querySelectorAll('.nav-item--top').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  const activeBtn = document.querySelector(`.nav-item--top[data-section="${sectionId}"]`);
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+}
+
 function updateProgressBar() {
-  const index = SECTION_ORDER.indexOf(currentSection);
-  const progress = ((index + 1) / SECTION_ORDER.length) * 100;
+  const scrollHeight = contentArea.scrollHeight - contentArea.clientHeight;
+  const scrollTop = contentArea.scrollTop;
+  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
   progressBar.style.transform = `scaleX(${progress / 100})`;
+}
+
+function setupScrollSpy() {
+  const sections = SECTION_ORDER.map(id => document.getElementById(`section-${id}`)).filter(Boolean);
+  
+  // Track scroll inside contentArea
+  contentArea.addEventListener('scroll', updateProgressBar, { passive: true });
+
+  const observerOptions = {
+    root: contentArea,
+    rootMargin: '-30% 0px -55% 0px', // Trigger when section crosses center
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const sectionId = entry.target.id.replace('section-', '');
+        currentSection = sectionId;
+        updateSidebarActive(sectionId);
+        updateTopNavActive(sectionId);
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(s => observer.observe(s));
 }
 
 function calculateRubricTotal() {
@@ -407,7 +544,10 @@ function calculateRubricTotal() {
     // Simple heuristic: if items exist, count as earned
     if (data.items.length > 0) earned += max;
   });
-  rubricTotalEl.textContent = `${earned.toFixed(1)} / ${total.toFixed(1)}`;
+  const scoreText = `${earned.toFixed(1)} / ${total.toFixed(1)}`;
+  if (rubricTotalEl) rubricTotalEl.textContent = scoreText;
+  const headerTotalEl = document.getElementById('header-rubric-total');
+  if (headerTotalEl) headerTotalEl.textContent = scoreText;
 }
 
 // ── PDF Modal ──────────────────────────────────

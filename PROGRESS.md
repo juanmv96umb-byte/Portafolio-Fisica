@@ -56,7 +56,7 @@
 
 ### Errores conocidos
 - [ ] **Avatar**: `bento-avatar__img` usa `Curriculum.pdf` como src — no es una imagen, el fallback JS lo oculta pero hay que subir una foto real
-- [ ] **Canvas resize**: Al redimensionar ventana, las partículas no se redistribuyen bien (init() se llama pero con datos viejos)
+- [x] **Canvas resize**: Las partículas se adaptan dinámicamente y con suavidad al tamaño de la pantalla sin reiniciar el simulador
 - [ ] **PDF.js worker**: El worker se carga de CDN cada vez, debería ser más robusto
 - [ ] **Theme flicker**: Sin script en `<head>`, el tema guardado puede mostrar un flash del tema default antes de aplicar el saved
 
@@ -70,7 +70,7 @@
 
 ### Rendimiento
 - [ ] **Particle canvas**: No hace cleanup del animation frame al cambiar pestaña (requestAnimationFrame sigue corriendo)
-- [ ] **Simuladores**: Múltiples requestAnimationFrame sin cancelación al cambiar de herramienta
+- [x] **Simuladores**: Cancelación automática del ciclo de animación cuando la herramienta se retira del DOM (evita fugas de memoria)
 
 ### Accesibilidad
 - [ ] **Skip to content**: Falta enlace de salto

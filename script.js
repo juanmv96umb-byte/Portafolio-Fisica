@@ -135,6 +135,10 @@
         function resize() {
             W = canvas.width = window.innerWidth;
             H = canvas.height = window.innerHeight;
+            particles.forEach(function (p) {
+                if (p.x > W) p.x = Math.random() * W;
+                if (p.y > H) p.y = Math.random() * H;
+            });
         }
         window.addEventListener('resize', resize);
         resize();
@@ -229,8 +233,6 @@
             requestAnimationFrame(draw);
         }
         draw();
-
-        window.addEventListener('resize', init);
     })();
 
     /* ═══════════════════════════════════════════
@@ -617,6 +619,7 @@
         document.querySelector('.wave-phase').addEventListener('input', function () { phase = (+this.value) * Math.PI / 180; });
 
         function draw() {
+            if (!document.body.contains(canvas)) return;
             ctx.clearRect(0, 0, W, H);
             ctx.beginPath();
             for (var x = 0; x < W; x++) {
@@ -646,6 +649,7 @@
         document.querySelector('.k-t').addEventListener('input', function () { dt = +this.value; });
 
         function draw() {
+            if (!document.body.contains(canvas)) return;
             ctx.clearRect(0, 0, W, H);
             var tSim = (Date.now() % (dt * 1000)) / 1000;
             var d = v0 * tSim + 0.5 * a * tSim * tSim;
@@ -705,6 +709,7 @@
         var omega = 0;
 
         function draw() {
+            if (!document.body.contains(canvas)) return;
             ctx.clearRect(0, 0, W, H);
 
             var scale = Math.min(W, H) / 6;
@@ -757,6 +762,7 @@
         if (dInput) dInput.addEventListener('input', function () { d = +this.value; });
 
         function draw() {
+            if (!document.body.contains(canvas)) return;
             ctx.clearRect(0, 0, W, H);
 
             // Draw slits on the left

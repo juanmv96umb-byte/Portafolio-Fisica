@@ -41,7 +41,7 @@
         ],
         ensayos: [],
         recursos: [
-            { title: 'Física (incompleto)', file: 'Material_Apoyo/fisica incompleto.pdf', desc: 'Material de apoyo', icon: 'book' },
+            { title: 'Física (incompleto)', file: 'Material_Apoyo/fisica incompleto.pdf', type: 'Recurso', desc: 'Material de apoyo', icon: 'book' },
         ],
     };
 
@@ -320,6 +320,36 @@
         });
     });
 
+    // Interceptar enlaces de navegación para hacer scroll y filtrar
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a');
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (href && href.startsWith('#') && href !== '#hero' && href !== '#profile' && href !== '#instrumentPanel') {
+            var filterMap = {
+                '#silabo': 'silabo',
+                '#fundamentos': 'fundamento',
+                '#laboratorios': 'laboratorio',
+                '#trabajos': 'grupal',
+                '#mapas': 'mapa',
+                '#pruebas': 'prueba',
+                '#recursos': 'recurso'
+            };
+            var filterVal = filterMap[href];
+            if (filterVal) {
+                e.preventDefault();
+                var portafolioSection = document.getElementById('portafolio');
+                if (portafolioSection) {
+                    portafolioSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                var chip = $('#filterChips .chip[data-filter="' + filterVal + '"]');
+                if (chip) {
+                    chip.click();
+                }
+            }
+        }
+    });
+
     /* ═══════════════════════════════════════════
        GLOBAL SEARCH
     ═══════════════════════════════════════════ */
@@ -469,12 +499,17 @@
         });
     }
 
+    function normalize(str) {
+        return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
     function filterDocs(filter, all) {
         var items = all;
         if (filter !== 'all') {
+            var f = normalize(filter);
             items = all.filter(function (item) {
-                var t = (item.type || '').toLowerCase();
-                return t.indexOf(filter) !== -1;
+                var t = normalize(item.type);
+                return t.indexOf(f) !== -1;
             });
         }
         renderDocs(items);

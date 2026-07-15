@@ -42,12 +42,13 @@
 - [x] Simulador de cinemática (MRUV con bola animada)
 - [x] Calculadora de ley de Ohm (V = I·R)
 - [x] Simulador de péndulo simple (T = 2π√(L/g))
+- [x] Simulador de doble rendija de Young (interferencia cuántica con patrón de franjas y frentes de onda interactivos)
 
 ### Navegación
 - [x] Búsqueda global (Ctrl+K) con keyboard navigation
 - [x] Floating action dock con tooltips
 - [x] Nav responsivo con hamburger menu
-- [x] Theme matrix switcher (3 botones)
+- [x] Theme matrix switcher (3 botones con efecto glitch visual y reflow sincronizado)
 
 ---
 

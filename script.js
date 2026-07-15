@@ -45,27 +45,27 @@
         ],
     };
 
-    const ALL_ITEMS = Object.values(DOCS).reduce((a, b) => a.concat(b), []);
-    const TOTAL_DOCS = ALL_ITEMS.length;
+    var ALL_ITEMS = Object.values(DOCS).reduce(function (a, b) { return a.concat(b); }, []);
+    var TOTAL_DOCS = ALL_ITEMS.length;
 
     /* ═══════════════════════════════════════════
        STATE
     ═══════════════════════════════════════════ */
 
-    let favorites = loadFavorites();
+    var favorites = loadFavorites();
 
     /* ═══════════════════════════════════════════
        DOM HELPERS
     ═══════════════════════════════════════════ */
 
-    const $ = (s, p) => (p || document).querySelector(s);
-    const $$ = (s, p) => Array.from((p || document).querySelectorAll(s));
+    var $ = function (s, p) { return (p || document).querySelector(s); };
+    var $$ = function (s, p) { return Array.from((p || document).querySelectorAll(s)); };
 
     /* ═══════════════════════════════════════════
-       SVG ICONS (inline strings)
+       SVG ICONS
     ═══════════════════════════════════════════ */
 
-    const S = {
+    var S = {
         pdf: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
         eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
         dl: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
@@ -78,14 +78,14 @@
         external: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
     };
 
-    const RES_ICONS = { book: S.book, beaker: S.beaker, clipboard: S.clipboard };
+    var RES_ICONS = { book: S.book, beaker: S.beaker, clipboard: S.clipboard };
 
     /* ═══════════════════════════════════════════
        FAVORITES
     ═══════════════════════════════════════════ */
 
     function loadFavorites() {
-        try { return JSON.parse(localStorage.getItem('pfavs')) || []; } catch { return []; }
+        try { return JSON.parse(localStorage.getItem('pfavs')) || []; } catch (e) { return []; }
     }
 
     function saveFavorites() {
@@ -93,7 +93,7 @@
     }
 
     function toggleFav(file) {
-        const i = favorites.indexOf(file);
+        var i = favorites.indexOf(file);
         i > -1 ? favorites.splice(i, 1) : favorites.push(file);
         saveFavorites();
         updateStats();
@@ -101,7 +101,6 @@
     }
 
     function isFav(file) { return favorites.includes(file); }
-
 
     /* ═══════════════════════════════════════════
        ESCAPE
@@ -123,9 +122,6 @@
         card.className = 'doc-card';
         card.dataset.file = item.file;
         card.dataset.search = (item.title + ' ' + (item.type || '')).toLowerCase();
-        if (typeof index === 'number') {
-            card.style.animationDelay = (index * 40) + 'ms';
-        }
 
         card.innerHTML =
             '<div class="doc-card__thumb doc-card__thumb--loading"><div class="doc-card__thumb-placeholder">' + S.pdf + '</div></div>' +
@@ -160,9 +156,6 @@
         a.href = item.file;
         a.target = '_blank';
         a.rel = 'noopener';
-        if (typeof index === 'number') {
-            a.style.animationDelay = (index * 40) + 'ms';
-        }
         a.innerHTML =
             '<div class="resource-card__icon">' + (RES_ICONS[item.icon] || S.book) + '</div>' +
             '<div class="resource-card__info">' +
@@ -213,6 +206,175 @@
             } else {
                 renderGrid(key, DOCS[key]);
             }
+        }
+    }
+
+    /* ═══════════════════════════════════════════
+       PARTICLE SYSTEM
+    ═══════════════════════════════════════════ */
+
+    var particles = [];
+    var pCanvas, pCtx, pW, pH;
+    var pRAF;
+
+    function initParticles() {
+        pCanvas = document.getElementById('heroParticles');
+        if (!pCanvas) return;
+        pCtx = pCanvas.getContext('2d');
+        resizeParticles();
+        createParticles();
+        animateParticles();
+    }
+
+    function resizeParticles() {
+        if (!pCanvas) return;
+        pW = pCanvas.width = pCanvas.offsetWidth;
+        pH = pCanvas.height = pCanvas.offsetHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        var count = Math.min(Math.floor((pW * pH) / 18000), 60);
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        for (var i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * pW,
+                y: Math.random() * pH,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                r: Math.random() * 2 + 1,
+                o: Math.random() * 0.4 + 0.1,
+                hue: isDark ? 260 + Math.random() * 20 : 260 + Math.random() * 20,
+            });
+        }
+    }
+
+    function animateParticles() {
+        if (!pCtx) return;
+        pCtx.clearRect(0, 0, pW, pH);
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = pW;
+            if (p.x > pW) p.x = 0;
+            if (p.y < 0) p.y = pH;
+            if (p.y > pH) p.y = 0;
+
+            pCtx.beginPath();
+            pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            pCtx.fillStyle = 'hsla(' + p.hue + ', 60%, 55%, ' + p.o + ')';
+            pCtx.fill();
+
+            for (var j = i + 1; j < particles.length; j++) {
+                var q = particles[j];
+                var dx = p.x - q.x;
+                var dy = p.y - q.y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    pCtx.beginPath();
+                    pCtx.moveTo(p.x, p.y);
+                    pCtx.lineTo(q.x, q.y);
+                    pCtx.strokeStyle = 'hsla(265, 50%, 55%, ' + (0.08 * (1 - dist / 120)) + ')';
+                    pCtx.lineWidth = 0.5;
+                    pCtx.stroke();
+                }
+            }
+        }
+        pRAF = requestAnimationFrame(animateParticles);
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLL PROGRESS
+    ═══════════════════════════════════════════ */
+
+    function setupScrollProgress() {
+        var bar = document.getElementById('scrollProgressBar');
+        if (!bar) return;
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                var scrollH = document.documentElement.scrollHeight - window.innerHeight;
+                var pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
+                bar.style.width = pct + '%';
+                ticking = false;
+            });
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATED COUNTERS
+    ═══════════════════════════════════════════ */
+
+    function animateCounter(el, target, duration) {
+        duration = duration || 1200;
+        var start = 0;
+        var startTime = null;
+        function step(ts) {
+            if (!startTime) startTime = ts;
+            var progress = Math.min((ts - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target);
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    /* ═══════════════════════════════════════════
+       PROGRESS BAR (Portfolio completion)
+    ═══════════════════════════════════════════ */
+
+    var SECTION_TARGETS = {
+        fundamentos: 10,
+        laboratorios: 10,
+        trabajos: 10,
+        mapas: 10,
+        pruebas: 10,
+        ensayos: 5,
+    };
+
+    function calcProgress() {
+        var total = 0;
+        var max = 0;
+        for (var key in SECTION_TARGETS) {
+            max += SECTION_TARGETS[key];
+            var items = DOCS[key] || [];
+            if (key === 'trabajos') items = items.concat(DOCS.individuales || []);
+            total += Math.min(items.length, SECTION_TARGETS[key]);
+        }
+        return max > 0 ? Math.round((total / max) * 100) : 0;
+    }
+
+    function updateProgress() {
+        var pct = calcProgress();
+        var fill = document.getElementById('progressFill');
+        var label = document.getElementById('progressPct');
+        if (fill) fill.style.width = pct + '%';
+        if (label) label.textContent = pct + '%';
+    }
+
+    /* ═══════════════════════════════════════════
+       STATS
+    ═══════════════════════════════════════════ */
+
+    var statsAnimated = false;
+
+    function updateStats() {
+        var td = document.getElementById('totalDocs');
+        var fv = document.getElementById('favoritosCount');
+        var sc = document.getElementById('sectionCount');
+
+        if (!statsAnimated) {
+            if (td) animateCounter(td, TOTAL_DOCS);
+            if (fv) animateCounter(fv, favorites.length);
+            if (sc) animateCounter(sc, Object.keys(DOCS).length);
+            statsAnimated = true;
+        } else {
+            if (td) td.textContent = TOTAL_DOCS;
+            if (fv) fv.textContent = favorites.length;
+            if (sc) sc.textContent = Object.keys(DOCS).length;
         }
     }
 
@@ -303,7 +465,6 @@
                 var card = entry.target;
                 var container = card.querySelector('.doc-card__thumb--loading');
                 if (!container) return;
-                container.dataset.queued = '1';
                 var file = card.dataset.file;
                 if (file) queueThumbnail(file, container);
                 thumbObserver.unobserve(card);
@@ -315,7 +476,6 @@
             if (card) thumbObserver.observe(card);
         });
     }
-
 
     /* ═══════════════════════════════════════════
        SEARCH & FILTER
@@ -363,18 +523,6 @@
     }
 
     /* ═══════════════════════════════════════════
-       STATS
-    ═══════════════════════════════════════════ */
-
-    function updateStats() {
-        var td = document.getElementById('totalDocs');
-        if (td) td.textContent = TOTAL_DOCS;
-
-        var fv = document.getElementById('favoritosCount');
-        if (fv) fv.textContent = favorites.length;
-    }
-
-    /* ═══════════════════════════════════════════
        SECTION ENTRANCE OBSERVER
     ═══════════════════════════════════════════ */
 
@@ -388,8 +536,8 @@
         $$('[data-section]').forEach(function (s) { obs.observe(s); });
     }
 
-    /* ════════════════════════════════════════════════════
-       NAV SCROLL SPY
+    /* ═══════════════════════════════════════════
+       NAV SCROLL SPY + SHADOW
     ═══════════════════════════════════════════ */
 
     function setupScrollSpy() {
@@ -408,6 +556,20 @@
         }, { threshold: 0.25, rootMargin: '0px 0px -30% 0px' });
 
         targets.forEach(function (t) { obs.observe(t); });
+    }
+
+    function setupNavScroll() {
+        var nav = document.getElementById('topNav');
+        if (!nav) return;
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                nav.classList.toggle('top-nav--scrolled', window.scrollY > 40);
+                ticking = false;
+            });
+        });
     }
 
     /* ═══════════════════════════════════════════
@@ -476,6 +638,23 @@
         toggle.addEventListener('click', function () {
             var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             applyTheme(isDark ? 'light' : 'dark');
+            // Recreate particles with new theme colors
+            createParticles();
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       RESIZE HANDLER
+    ═══════════════════════════════════════════ */
+
+    function setupResize() {
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                resizeParticles();
+                createParticles();
+            }, 250);
         });
     }
 
@@ -484,28 +663,37 @@
     ═══════════════════════════════════════════ */
 
     function init() {
-        // 1. Render everything
+        // 1. Theme
+        setupTheme();
+
+        // 2. Render everything
         renderAll();
 
-        // 2. Stats
+        // 3. Stats + Progress
         updateStats();
+        updateProgress();
 
-        // 3. Search
+        // 4. Search
         setupSearch('fundamentos');
         setupSearch('laboratorios');
         setupSearch('trabajos');
 
-        // 4. Thumbnails (lazy)
+        // 5. Thumbnails (lazy)
         setupThumbObserver();
 
-        // 5. Observers
+        // 6. Particles
+        initParticles();
+
+        // 7. Observers
         setupSectionObserver();
         setupScrollSpy();
 
-        // 6. UI
-        setupTheme();
+        // 8. UI
         setupNavToggle();
         setupScrollTop();
+        setupScrollProgress();
+        setupNavScroll();
+        setupResize();
     }
 
     if (document.readyState === 'loading') {

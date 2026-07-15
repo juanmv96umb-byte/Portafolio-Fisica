@@ -810,4 +810,180 @@
     renderDocs(ALL_ITEMS);
     initStats();
 
+    /* ═══════════════════════════════════════════
+       TERMINAL CLI
+    ═══════════════════════════════════════════ */
+    (function terminal() {
+        var term = document.getElementById('terminal');
+        var body = document.getElementById('termBody');
+        var inp = document.getElementById('termInput');
+        var closeBtn = document.getElementById('termClose');
+        if (!term) return;
+
+        var history = [], hIdx = -1;
+
+        function open() {
+            term.classList.add('is-open');
+            setTimeout(function () { inp.focus(); }, 100);
+        }
+        function close() { term.classList.remove('is-open'); }
+        function toggle() { term.classList.contains('is-open') ? close() : open(); }
+
+        function print(text, cls) {
+            var d = document.createElement('div');
+            d.className = 'term-line' + (cls ? ' term-line--' + cls : '');
+            d.innerHTML = text;
+            body.appendChild(d);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        var COMMANDS = {
+            help: function () {
+                print('Comandos disponibles:', 'sys');
+                print('  <code>help</code>           → esta ayuda');
+                print('  <code>tema [nombre]</code>  → quantum | blueprint | photon');
+                print('  <code>buscar [texto]</code> → abre búsqueda global');
+                print('  <code>simular [nombre]</code>→ ondas | cinemática | ohm | péndulo');
+                print('  <code>docs</code>           → lista documentos');
+                print('  <code>fav</code>            → lista favoritos');
+                print('  <code>stats</code>          → estadísticas');
+                print('  <code>matrix</code>         → 🤫 easter egg');
+                print('  <code>clear</code>          → limpia terminal');
+                print('  <code>about</code>          → acerca de');
+                print('  <code>exit</code>           → cierra terminal');
+            },
+            about: function () {
+                print('Quantum Lab OS v4.3', 'sys');
+                print('Portafolio de Física Aplicada · UCE', 'sys');
+                print('Autor: Juan Valle · 4° Semestre · 2026', 'sys');
+            },
+            clear: function () { body.innerHTML = ''; },
+            exit: close,
+            quit: close,
+            docs: function () {
+                ALL_ITEMS.forEach(function (d, i) {
+                    print((i + 1) + '. ' + d.title + ' <span style="color:var(--ink-3)">[' + d.type + ']</span>');
+                });
+            },
+            fav: function () {
+                if (!FAVORITES.length) return print('No hay favoritos aún.', 'err');
+                FAVORITES.forEach(function (f) { print('★ ' + f); });
+            },
+            stats: function () {
+                print('Documentos: ' + TOTAL_DOCS, 'ok');
+                print('Laboratorios: ' + (DOCS.laboratorios ? DOCS.laboratorios.length : 0), 'ok');
+                print('Favoritos: ' + FAVORITES.length, 'ok');
+                print('Tema actual: ' + (localStorage.getItem('theme') || 'quantum'), 'ok');
+            },
+            matrix: function () {
+                print('🟢 Iniciando modo Matrix...', 'ok');
+                document.body.style.filter = 'hue-rotate(90deg) saturate(1.5)';
+                setTimeout(function () { document.body.style.filter = ''; }, 4000);
+            }
+        };
+
+        function exec(cmd) {
+            print('<span style="color:var(--accent)">λ ~</span> ' + cmd, 'user');
+            var parts = cmd.trim().split(/\s+/);
+            var name = (parts[0] || '').toLowerCase();
+            var arg = parts.slice(1).join(' ');
+
+            if (!name) return;
+
+            if (name === 'tema') {
+                var t = arg.toLowerCase();
+                if (['quantum', 'blueprint', 'photon'].indexOf(t) !== -1) {
+                    setTheme(t);
+                    print('Tema cambiado a: ' + t, 'ok');
+                } else print('Temas: quantum, blueprint, photon', 'err');
+                return;
+            }
+            if (name === 'buscar') {
+                openSearch();
+                if (arg) { els.searchInput.value = arg; els.searchInput.dispatchEvent(new Event('input')); }
+                return;
+            }
+            if (name === 'simular') {
+                var s = arg.toLowerCase();
+                if (['ondas', 'cinemática', 'cinematica', 'ohm', 'péndulo', 'pendulo'].indexOf(s) !== -1) {
+                    els.dockLabTools.click();
+                    setTimeout(function () {
+                        var tool = document.querySelector('.lab-tool[data-tool="' +
+                            (s === 'cinemática' || s === 'cinematica' ? 'kinematics' : s === 'péndulo' || s === 'pendulo' ? 'pendulum' : s) + '"]');
+                        if (tool) tool.click();
+                    }, 200);
+                    return;
+                }
+                return print('Simuladores: ondas, cinemática, ohm, péndulo', 'err');
+            }
+
+            if (COMMANDS[name]) COMMANDS[name]();
+            else print('Comando no reconocido: <code>' + name + '</code>. Escribe <code>help</code>.', 'err');
+        }
+
+        inp.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                var v = inp.value;
+                if (v.trim()) { history.unshift(v); hIdx = -1; }
+                exec(v);
+                inp.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (history.length) { hIdx = Math.min(hIdx + 1, history.length - 1); inp.value = history[hIdx]; }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (hIdx > 0) { hIdx--; inp.value = history[hIdx]; }
+                else { hIdx = -1; inp.value = ''; }
+            }
+        });
+
+        closeBtn.addEventListener('click', close);
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === ';') { e.preventDefault(); toggle(); }
+            if (e.key === 'Escape' && term.classList.contains('is-open')) close();
+        });
+
+        var dock = document.querySelector('.dock');
+        if (dock) {
+            var b = document.createElement('button');
+            b.className = 'dock__btn';
+            b.setAttribute('data-tooltip', 'Terminal (Ctrl+;)');
+            b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>';
+            b.addEventListener('click', toggle);
+            dock.appendChild(b);
+        }
+    })();
+
+    /* ═══════════════════════════════════════════
+       MODO LINTERNA
+    ═══════════════════════════════════════════ */
+    (function lantern() {
+        var mask = document.getElementById('lanternMask');
+        if (!mask) return;
+        var active = false;
+
+        function toggle() {
+            active = !active;
+            document.body.classList.toggle('lantern-mode', active);
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'l' || e.key === 'L') {
+                if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+                e.preventDefault();
+                toggle();
+            }
+            if (e.key === 'Escape' && active) {
+                active = false;
+                document.body.classList.remove('lantern-mode');
+            }
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!active) return;
+            mask.style.setProperty('--mx', e.clientX + 'px');
+            mask.style.setProperty('--my', e.clientY + 'px');
+        });
+    })();
+
 })();

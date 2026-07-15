@@ -18,6 +18,10 @@
         <div class="scroll-progress__bar" id="scrollProgressBar"></div>
     </div>
 
+    <div class="lantern-mask" id="lanternMask" aria-hidden="true"></div>
+    <div class="lantern-hint" aria-hidden="true">🔦 Modo linterna · <kbd>L</kbd> para salir</div>
+
+
     <canvas id="particleCanvas" aria-hidden="true" class="particle-canvas"></canvas>
 
     <!-- ─── Top Navigation ─── -->
@@ -341,6 +345,23 @@
             <p class="footer__meta">Juan Valle · 4° Semestre · 2026</p>
         </div>
     </footer>
+
+    <!-- ═══ Terminal CLI ═══ -->
+    <div class="terminal" id="terminal">
+        <div class="terminal__header">
+            <div class="terminal__dots"><span></span><span></span><span></span></div>
+            <span class="terminal__title">quantum-lab ~ bash</span>
+            <button class="terminal__close" id="termClose">×</button>
+        </div>
+        <div class="terminal__body" id="termBody">
+            <div class="term-line term-line--sys">Quantum Lab OS v4.3 · Terminal de Física Aplicada</div>
+            <div class="term-line term-line--sys">Escribe <code>help</code> para ver comandos disponibles.</div>
+        </div>
+        <div class="terminal__input-row">
+            <span class="term-prompt">λ ~</span>
+            <input type="text" id="termInput" autocomplete="off" spellcheck="false" placeholder="escribe un comando...">
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

@@ -954,9 +954,7 @@
         }
     })();
 
-    /* ═══════════════════════════════════════════
-       MODO LINTERNA
-    ═══════════════════════════════════════════ */
+    /* ═══ MODO LINTERNA ═══ */
     (function lantern() {
         var mask = document.getElementById('lanternMask');
         if (!mask) return;
@@ -967,22 +965,17 @@
             document.body.classList.toggle('lantern-mode', active);
         }
 
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'l' || e.key === 'L') {
-                if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-                e.preventDefault();
-                toggle();
-            }
-            if (e.key === 'Escape' && active) {
-                active = false;
-                document.body.classList.remove('lantern-mode');
-            }
-        });
-
         document.addEventListener('mousemove', function (e) {
             if (!active) return;
-            mask.style.setProperty('--mx', e.clientX + 'px');
-            mask.style.setProperty('--my', e.clientY + 'px');
+            document.documentElement.style.setProperty('--mx', e.clientX + 'px');
+            document.documentElement.style.setProperty('--my', e.clientY + 'px');
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'l' || e.key === 'L') {
+                if (document.activeElement.tagName === 'INPUT') return;
+                toggle();
+            }
         });
     })();
 

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="quantum">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio de Física Aplicada — UCE</title>
+    <title>Quantum Lab OS · Física Aplicada — UCE</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛</text></svg>">
     <meta name="description" content="Portafolio de Física Aplicada — Universidad Central del Ecuador">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin></script>
@@ -18,20 +18,31 @@
         <div class="scroll-progress__bar" id="scrollProgressBar"></div>
     </div>
 
-    <div class="ambient-bg" aria-hidden="true"></div>
+    <canvas id="particleCanvas" aria-hidden="true" class="particle-canvas"></canvas>
 
     <!-- ─── Top Navigation ─── -->
     <nav class="top-nav" id="topNav" aria-label="Navegación principal">
         <div class="top-nav__inner">
             <a href="#hero" class="top-nav__logo">
                 <span class="top-nav__logo-icon">⚛</span>
-                <span class="top-nav__logo-text">Física Aplicada</span>
+                <span class="top-nav__logo-text">Quantum Lab <small>v4.2</small></span>
             </a>
             <div class="top-nav__right">
-                <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
-                    <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-                    <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <button class="search-toggle" id="searchToggle" aria-label="Buscar (Ctrl+K)" title="Buscar (Ctrl+K)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span class="search-kbd">Ctrl+K</span>
                 </button>
+                <div class="theme-matrix" id="themeMatrix" role="radiogroup" aria-label="Selector de tema">
+                    <button class="theme-btn is-active" data-theme="quantum" role="radio" aria-checked="true" title="Quantum (oscuro)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    </button>
+                    <button class="theme-btn" data-theme="blueprint" role="radio" aria-checked="false" title="Blueprint (plano)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                    </button>
+                    <button class="theme-btn" data-theme="photon" role="radio" aria-checked="false" title="Photon (claro)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    </button>
+                </div>
                 <button class="top-nav__toggle" id="navToggle" aria-label="Menú" aria-expanded="false">
                     <span></span><span></span><span></span>
                 </button>
@@ -49,331 +60,287 @@
         </div>
     </nav>
 
+    <!-- ─── Global Search ─── -->
+    <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Búsqueda global">
+        <div class="search-modal">
+            <div class="search-modal__header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" class="search-modal__input" id="searchInput" placeholder="Buscar documentos, laboratorios, mapas…" autocomplete="off">
+                <kbd class="search-modal__esc">ESC</kbd>
+            </div>
+            <div class="search-modal__results" id="searchResults"></div>
+        </div>
+    </div>
+
     <!-- ─── Hero ─── -->
     <section class="hero" id="hero">
-        <canvas class="hero__particles" id="heroParticles" aria-hidden="true"></canvas>
-        <div class="hero__bg"></div>
-        <div class="hero__floating" aria-hidden="true">
-            <span class="hero__float hero__float--1">∫</span>
-            <span class="hero__float hero__float--2">∑</span>
-            <span class="hero__float hero__float--3">∂</span>
-            <span class="hero__float hero__float--4">π</span>
-            <span class="hero__float hero__float--5">√</span>
-            <span class="hero__float hero__float--6">∞</span>
-            <span class="hero__float hero__float--7">λ</span>
-            <span class="hero__float hero__float--8">Δ</span>
+        <div class="atom-3d" aria-hidden="true">
+            <div class="orbit orbit-1"><div class="electron"></div></div>
+            <div class="orbit orbit-2"><div class="electron"></div></div>
+            <div class="orbit orbit-3"><div class="electron"></div></div>
+            <div class="orbit orbit-4"><div class="electron"></div></div>
+            <div class="nucleus"></div>
         </div>
         <div class="hero__content">
-            <div class="hero__badge">
-                <span class="hero__badge-dot"></span>
-                Universidad Central del Ecuador
+            <span class="hero__badge">⚛ FÍSICA APLICADA · UCE</span>
+            <h1 class="hero__title">Portafolio <span class="gradient-text">Digital</span></h1>
+            <p class="hero__sub">Ecuaciones del movimiento · Laboratorio de simulación · Instrumentación cuántica</p>
+            <div class="formula-ticker" id="formulaTicker">
+                <span class="formula-ticker__item" data-formula='F = G·m₁m₂ / r²'>F = G·m₁m₂ / r²</span>
             </div>
-            <div class="hero__atom-container">
-                <div class="atom-visual">
-                    <div class="atom-nucleus"></div>
-                    <div class="atom-orbit orbit-x"><div class="atom-electron"></div></div>
-                    <div class="atom-orbit orbit-y"><div class="atom-electron"></div></div>
-                    <div class="atom-orbit orbit-z"><div class="atom-electron"></div></div>
-                </div>
-            </div>
-            <h1 class="hero__title">
-                <span class="hero__title-line">Portafolio de</span>
-                <span class="hero__title-line hero__title-line--accent">Física Aplicada</span>
-            </h1>
-            <p class="hero__subtitle">Facultad de Filosofía, Letras y Ciencias de la Educación &middot; Pedagogía de las Ciencias Experimentales Informática</p>
             <div class="hero__actions">
-                <a href="#silabo" class="hero__btn hero__btn--primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    Ver Sílabo
-                </a>
-                <a href="#fundamentos" class="hero__btn hero__btn--outline">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Explorar
-                </a>
-            </div>
-            <div class="hero__quick">
-                <a href="#silabo" class="quick-chip">📋 Sílabo</a>
-                <a href="#fundamentos" class="quick-chip">📚 Fundamentos</a>
-                <a href="#laboratorios" class="quick-chip">🔬 Laboratorios</a>
-                <a href="#trabajos" class="quick-chip">👥 Trabajos</a>
-                <a href="#mapas" class="quick-chip">🧠 Mapas</a>
-                <a href="#pruebas" class="quick-chip">📝 Pruebas</a>
-                <a href="#recursos" class="quick-chip">📎 Recursos</a>
-            </div>
-        </div>
-        <div class="hero__scroll-hint" aria-hidden="true">
-            <div class="hero__scroll-mouse">
-                <div class="hero__scroll-wheel"></div>
+                <a href="#silabo" class="hero__btn hero__btn--primary">Explorar sílabo</a>
+                <a href="#laboratorios" class="hero__btn hero__btn--ghost">Laboratorios</a>
             </div>
         </div>
     </section>
 
-    <!-- ─── Instrument Panel (stats gauge) ─── -->
-    <section class="stats-section" id="stats">
-        <div class="instrument-panel">
-            <div class="lab-gauge">
-                <div class="lab-gauge__head">
-                    <span class="lab-gauge__label">Progreso</span>
-                    <span class="lab-gauge__unit">% COMPLETADO</span>
+    <!-- ─── Student Profile ─── -->
+    <section class="profile-bento" id="profile">
+        <div class="bento-grid">
+            <div class="bento-card bento-card--photo">
+                <div class="bento-avatar">
+                    <img src="Informacion_Personal/Curriculum.pdf" alt="Foto de perfil" class="bento-avatar__img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="bento-avatar__fallback" style="display:none">JV</div>
                 </div>
-                <svg class="lab-gauge__dial" viewBox="0 0 260 130">
-                    <path class="lab-gauge__dial-case" d="M20 120 A120 120 0 0 1 240 120"/>
-                    <path class="lab-gauge__arc" d="M 260-242 A130 130 0 0 1 260 120" transform="translate(0,-21.5) scale(.75,.8)"/>
-                    <line class="lab-gauge__tick" x1="60" y1="95" x2="74" y2="89" transform="rotate(-30,130,110)"/>
-                    <line class="lab-gauge__tick" x1="34" y1="110" x2="48" y2="110" transform="rotate(-60,130,110)"/>
-                    <line class="lab-gauge__tick" x1="20" y1="120" x2="34" y2="120"/>
-                    <line class="lab-gauge__tick" x1="226" y1="95" x2="240" y2="89" transform="rotate(30,130,110)"/>
-                    <line class="lab-gauge__tick" x1="212" y1="110" x2="226" y2="110" transform="rotate(60,130,110)"/>
-                    <text class="lab-gauge__tick-label" x="100" y="102" transform="rotate(-60,130,115)">0</text>
-                    <text class="lab-gauge__tick-label" x="130" y="96" text-anchor="middle">50</text>
-                    <text class="lab-gauge__tick-label" x="163" y="102" transform="rotate(60,130,115)">100</text>
-                    <polygon class="lab-gauge__needle" id="gaugeNeedle" points="130,18 128,108 132,108" transform="rotate(0,130,108)"/>
-                    <circle class="lab-gauge__pivot" cx="130" cy="108" r="9"/>
-                    <circle class="lab-gauge__screw" cx="130" cy="108" r="4"/>
+                <h3>Juan Valle</h3>
+                <span class="bento-label">Física Aplicada</span>
+                <span class="bento-meta">UCE · 4° Semestre</span>
+            </div>
+            <div class="bento-card bento-card--stat">
+                <div class="bento-stat-num" id="docCounter">0</div>
+                <span class="bento-label">Documentos</span>
+                <svg class="bento-sparkline" width="120" height="32" viewBox="0 0 120 32"><path d="M0 24 L10 20 L20 22 L30 14 L40 16 L50 8 L60 12 L70 4 L80 6 L90 2 L100 6 L110 4 L120 0" fill="none" stroke="var(--color-accent)" stroke-width="2"/></svg>
+            </div>
+            <div class="bento-card bento-card--lab">
+                <div class="bento-stat-num" id="labCounter">0</div>
+                <span class="bento-label">Laboratorios</span>
+            </div>
+            <div class="bento-card bento-card--trophy">
+                <span class="bento-stat-num" style="font-size:1.2rem">⚛</span>
+                <span class="bento-label">Partícula elemental</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Instrument Panel ─── -->
+    <section class="instrument-panel" id="instrumentPanel">
+        <div class="panel-header">
+            <h2 class="section-label">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Telemetría
+            </h2>
+        </div>
+        <div class="panel-grid">
+            <div class="gauge-card">
+                <svg class="gauge-svg" viewBox="0 0 120 68">
+                    <path d="M10 58 A50 50 0 0 1 110 58" fill="none" stroke="var(--color-border)" stroke-width="6" stroke-linecap="round"/>
+                    <path class="gauge-arc" d="M10 58 A50 50 0 0 1 110 58" fill="none" stroke="var(--color-accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="157" stroke-dashoffset="157" id="gaugeArc"/>
+                    <line class="gauge-needle" x1="60" y1="58" x2="60" y2="14" stroke="var(--color-ink)" stroke-width="2" stroke-linecap="round" id="gaugeNeedle"/>
+                    <circle cx="60" cy="58" r="4" fill="var(--color-accent)"/>
+                    <text x="60" y="66" text-anchor="middle" fill="var(--color-ink-2)" font-size="6" font-family="var(--font-mono)">COMPLETADO</text>
                 </svg>
-                <div class="lab-gauge__readout">
-                    <span class="lab-gauge__value" id="gaugeValue">0</span><span class="lab-gauge__pct">%</span>
-                </div>
-                <p class="lab-gauge__caption">Completitud del portafolio</p>
+                <span class="gauge-value" id="gaugeValue">0%</span>
             </div>
-            <div class="lab-readings">
-                <div class="reading-row">
-                    <span class="reading-row__label">Documentos</span>
-                    <span class="reading-row__num" id="totalDocs">0</span>
+            <div class="stat-card">
+                <div class="stat-row">
+                    <span class="stat-label">Sílabo</span>
+                    <div class="stat-bar-bg"><div class="stat-bar stat-bar--cyan" style="width:100%" id="statSilabo"></div></div>
+                    <span class="stat-val">1/1</span>
                 </div>
-                <div class="reading-row">
-                    <span class="reading-row__label">Favoritos</span>
-                    <span class="reading-row__num" id="favoritosCount">0</span>
+                <div class="stat-row">
+                    <span class="stat-label">Fundamentos</span>
+                    <div class="stat-bar-bg"><div class="stat-bar stat-bar--blue" style="width:100%" id="statFundamentos"></div></div>
+                    <span class="stat-val" id="statFundamentosVal">4/4</span>
                 </div>
-                <div class="reading-row">
-                    <span class="reading-row__label">Secciones</span>
-                    <span class="reading-row__num" id="sectionCount">0</span>
+                <div class="stat-row">
+                    <span class="stat-label">Laboratorios</span>
+                    <div class="stat-bar-bg"><div class="stat-bar stat-bar--green" style="width:0%" id="statLab"></div></div>
+                    <span class="stat-val" id="statLabVal">0/3</span>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ─── Bento Profile ─── -->
-    <section class="section" id="perfil" data-section>
-        <div class="section__inner">
-            <div class="bento-grid">
-                <div class="bento-card bento-card--large">
-                    <div class="bento-card__content">
-                        <div class="student-profile">
-                            <div class="student-profile__avatar">JV</div>
-                            <div class="student-profile__details">
-                                <span class="student-profile__name">Juan Valle</span>
-                                <span class="student-profile__status">Estudiante · Pedagogía de la Informática</span>
-                            </div>
-                        </div>
-                        <div class="student-info-list">
-                            <div class="info-row">
-                                <span class="info-row__label">Nivel</span>
-                                <span class="info-row__val">4to Semestre</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-row__label">Materia</span>
-                                <span class="info-row__val">Física Aplicada</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-row__label">Facultad</span>
-                                <span class="info-row__val">Filosofía, Letras y Ciencias de la Educación</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="stat-row">
+                    <span class="stat-label">Mapas</span>
+                    <div class="stat-bar-bg"><div class="stat-bar stat-bar--amber" style="width:0%" id="statMapas"></div></div>
+                    <span class="stat-val" id="statMapasVal">0/4</span>
                 </div>
-                <div class="bento-card university-card">
-                    <div class="bento-card__content">
-                        <div class="university-card__icon">🏛️</div>
-                        <div class="university-card__title">Universidad</div>
-                        <div class="university-card__name">Universidad Central del Ecuador</div>
-                        <span class="university-card__tag">UCE</span>
-                    </div>
-                </div>
-                <div class="bento-card subject-card">
-                    <div class="bento-card__content">
-                        <div class="subject-card__icon">⚛️</div>
-                        <div class="subject-card__title">Asignatura</div>
-                        <div class="subject-card__name">Física Aplicada</div>
-                        <span class="subject-card__code">FIS-401</span>
-                    </div>
+                <div class="stat-row">
+                    <span class="stat-label">Pruebas</span>
+                    <div class="stat-bar-bg"><div class="stat-bar stat-bar--purple" style="width:0%" id="statPruebas"></div></div>
+                    <span class="stat-val" id="statPruebasVal">0/2</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ─── Sílabo ─── -->
-    <section class="section section--alt" id="silabo" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">📋</div>
-                <h2 class="section__title">Sílabo</h2>
-                <p class="section__desc">Programa del curso subrayado según indicaciones</p>
+    <!-- ─── Secciones de contenido ─── -->
+    <main class="main">
+        <div class="section-toolbar">
+            <div class="filter-chips" id="filterChips" role="tablist">
+                <button class="chip is-active" data-filter="all" role="tab" aria-selected="true">Todo</button>
+                <button class="chip" data-filter="silabo" role="tab">Sílabo</button>
+                <button class="chip" data-filter="fundamento" role="tab">Fundamentos</button>
+                <button class="chip" data-filter="laboratorio" role="tab">Laboratorios</button>
+                <button class="chip" data-filter="grupal" role="tab">Trabajos</button>
+                <button class="chip" data-filter="individual" role="tab">Tareas</button>
+                <button class="chip" data-filter="mapa" role="tab">Mapas</button>
+                <button class="chip" data-filter="prueba" role="tab">Pruebas</button>
             </div>
-            <div class="document-grid" id="grid-silabo"></div>
         </div>
-    </section>
 
-    <!-- ─── Carátula ─── -->
-    <section class="section" id="caratula" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">📄</div>
-                <h2 class="section__title">Carátula y Hoja de Vida</h2>
-                <p class="section__desc">Presentación con datos organizados</p>
-            </div>
-            <div class="document-grid" id="grid-caratula"></div>
-        </div>
-    </section>
+        <div class="docs-grid" id="docsGrid"></div>
+    </main>
 
-    <!-- ─── Fundamentos ─── -->
-    <section class="section section--alt" id="fundamentos" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">📚</div>
-                <h2 class="section__title">10 Fundamentos Conceptuales</h2>
-                <p class="section__desc">Portafolios con fundamentos desarrollados y organizados</p>
-            </div>
-            <div class="section__controls">
-                <div class="search-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="search-box__input" id="searchFundamentos" placeholder="Buscar..." aria-label="Buscar">
+    <!-- ─── Quick View Modal ─── -->
+    <div class="modal" id="pdfModal" role="dialog" aria-modal="true" aria-label="Visor de PDF">
+        <div class="modal__backdrop"></div>
+        <div class="modal__body modal__body--pdf">
+            <div class="modal__header">
+                <h3 class="modal__title" id="pdfModalTitle">Documento</h3>
+                <div class="modal__actions">
+                    <a class="modal__download" id="pdfDownloadBtn" download aria-label="Descargar PDF">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Descargar
+                    </a>
+                    <button class="modal__close" id="pdfModalClose" aria-label="Cerrar visor">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
                 </div>
-                <button class="btn" id="filterFundamentos" aria-label="Filtrar favoritos">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-                    Filtrar
+            </div>
+            <div class="modal__content" id="pdfViewer">
+                <canvas id="pdfCanvas"></canvas>
+                <div class="pdf-controls">
+                    <button class="pdf-nav" id="pdfPrev" aria-label="Página anterior">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <span id="pdfPageInfo">1 / 1</span>
+                    <button class="pdf-nav" id="pdfNext" aria-label="Página siguiente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Lab Tools Modal ─── -->
+    <div class="modal" id="labToolsModal" role="dialog" aria-modal="true" aria-label="Instrumentos de laboratorio">
+        <div class="modal__backdrop"></div>
+        <div class="modal__body modal__body--lab">
+            <div class="modal__header">
+                <h3 class="modal__title">🧪 Instrumentos de laboratorio</h3>
+                <button class="modal__close" id="labToolsClose" aria-label="Cerrar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
-            <div class="document-grid" id="grid-fundamentos"></div>
-        </div>
-    </section>
-
-    <!-- ─── Laboratorios ─── -->
-    <section class="section" id="laboratorios" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">🔬</div>
-                <h2 class="section__title">10 Laboratorios del Centro de Física</h2>
-                <p class="section__desc">Prácticas con evidencias y resultados</p>
-            </div>
-            <div class="section__controls">
-                <div class="search-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="search-box__input" id="searchLaboratorios" placeholder="Buscar..." aria-label="Buscar">
+            <div class="lab-tools-grid">
+                <div class="lab-tool" data-tool="waves">
+                    <div class="lab-tool__icon">〰️</div>
+                    <h4>Simulador de ondas</h4>
+                    <p>Amplitud, frecuencia y fase</p>
                 </div>
-                <button class="btn" id="filterLaboratorios" aria-label="Filtrar favoritos">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-                    Filtrar
-                </button>
-            </div>
-            <div class="document-grid" id="grid-laboratorios"></div>
-        </div>
-    </section>
-
-    <!-- ─── Trabajos ─── -->
-    <section class="section section--alt" id="trabajos" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">👥</div>
-                <h2 class="section__title">Trabajos Grupales e Individuales</h2>
-                <p class="section__desc">Proyectos colaborativos y trabajos autónomos</p>
-            </div>
-            <div class="section__controls">
-                <div class="search-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="search-box__input" id="searchTrabajos" placeholder="Buscar..." aria-label="Buscar">
+                <div class="lab-tool" data-tool="kinematics">
+                    <div class="lab-tool__icon">📐</div>
+                    <h4>Cinemática</h4>
+                    <p>MRU · MRUV · Caída libre</p>
                 </div>
-                <button class="btn" id="filterTrabajos" aria-label="Filtrar favoritos">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-                    Filtrar
-                </button>
+                <div class="lab-tool" data-tool="ohm">
+                    <div class="lab-tool__icon">⚡</div>
+                    <h4>Ley de Ohm</h4>
+                    <p>V = I · R</p>
+                </div>
+                <div class="lab-tool" data-tool="pendulum">
+                    <div class="lab-tool__icon">🔄</div>
+                    <h4>Péndulo simple</h4>
+                    <p>T = 2π√(L/g)</p>
+                </div>
             </div>
-            <div class="document-grid" id="grid-trabajos"></div>
+            <div class="lab-tool-panel" id="labToolPanel"></div>
         </div>
-    </section>
+    </div>
 
-    <!-- ─── Mapas ─── -->
-    <section class="section" id="mapas" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">🧠</div>
-                <h2 class="section__title">Mapas Mentales</h2>
-                <p class="section__desc">Organizadores gráficos claros y estructurados</p>
+    <!-- ─── Lab Tools Panels ─── -->
+    <template id="waveSimulator">
+        <div class="simulator">
+            <canvas class="sim-canvas" id="waveCanvas" width="500" height="200"></canvas>
+            <div class="sim-controls">
+                <label>Amplitud <input type="range" class="wave-amp" min="10" max="80" value="50"></label>
+                <label>Frec. <input type="range" class="wave-freq" min="1" max="20" value="5"></label>
+                <label>Fase <input type="range" class="wave-phase" min="0" max="360" value="0"></label>
             </div>
-            <div class="document-grid" id="grid-mapas"></div>
         </div>
-    </section>
+    </template>
 
-    <!-- ─── Ensayos ─── -->
-    <section class="section section--alt" id="ensayos" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">✍️</div>
-                <h2 class="section__title">Ensayos</h2>
-                <p class="section__desc">Ensayos académicos con redacción y contenido</p>
+    <template id="kinematicsSim">
+        <div class="simulator">
+            <canvas class="sim-canvas" id="kinematicsCanvas" width="500" height="200"></canvas>
+            <div class="sim-controls">
+                <label>Vel. inicial <input type="range" class="k-v0" min="0" max="100" value="30"></label>
+                <label>Aceleración <input type="range" class="k-a" min="-20" max="20" value="5"></label>
+                <label>Δt <input type="range" class="k-t" min="1" max="20" value="10"></label>
             </div>
-            <div class="document-grid" id="grid-ensayos"></div>
+            <div class="sim-output" id="kinematicsOutput">d = 0 m · vf = 0 m/s</div>
         </div>
-    </section>
+    </template>
 
-    <!-- ─── Pruebas ─── -->
-    <section class="section" id="pruebas" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">📝</div>
-                <h2 class="section__title">Pruebas de Plataforma</h2>
-                <p class="section__desc">Evaluaciones y cuestionarios realizados</p>
+    <template id="ohmSim">
+        <div class="simulator">
+            <div class="circuit-svg">
+                <svg width="200" height="120" viewBox="0 0 200 120">
+                    <rect x="10" y="10" width="180" height="100" rx="10" fill="none" stroke="var(--color-border)" stroke-width="2"/>
+                    <line x1="60" y1="60" x2="100" y2="60" stroke="var(--color-border)" stroke-width="2"/>
+                    <line x1="100" y1="60" x2="140" y2="60" stroke="var(--color-border)" stroke-width="2"/>
+                    <circle cx="60" cy="60" r="8" fill="none" stroke="var(--color-accent)" stroke-width="2"/>
+                    <text x="60" y="55" text-anchor="middle" fill="var(--color-accent)" font-size="8" font-weight="bold">V</text>
+                    <polygon points="110,45 130,60 110,75" fill="none" stroke="var(--color-green)" stroke-width="2"/>
+                    <text x="130" y="55" text-anchor="middle" fill="var(--color-green)" font-size="7" font-weight="bold">R</text>
+                    <text x="50" y="95" text-anchor="middle" fill="var(--color-ink-2)" font-size="7">V</text>
+                    <text x="130" y="95" text-anchor="middle" fill="var(--color-ink-2)" font-size="7">R</text>
+                </svg>
             </div>
-            <div class="document-grid" id="grid-pruebas"></div>
+            <div class="sim-controls">
+                <label>Voltaje (V) <input type="range" class="ohm-v" min="1" max="240" value="12"></label>
+                <label>Resistencia (Ω) <input type="range" class="ohm-r" min="1" max="1000" value="100"></label>
+            </div>
+            <div class="sim-output" id="ohmOutput">I = 0.12 A</div>
         </div>
-    </section>
+    </template>
 
-    <!-- ─── Recursos ─── -->
-    <section class="section section--alt" id="recursos" data-section>
-        <div class="section__divider" aria-hidden="true"></div>
-        <div class="section__inner">
-            <div class="section__header">
-                <div class="section__icon">📎</div>
-                <h2 class="section__title">Capturas y Recursos</h2>
-                <p class="section__desc">Evidencias del uso de recursos y material complementario</p>
+    <template id="pendulumSim">
+        <div class="simulator">
+            <canvas class="sim-canvas" id="pendulumCanvas" width="300" height="250"></canvas>
+            <div class="sim-controls">
+                <label>Longitud (m) <input type="range" class="pend-l" min="0.5" max="5" value="1" step="0.1"></label>
+                <label>Gravedad <input type="range" class="pend-g" min="1" max="20" value="9.8" step="0.1"></label>
             </div>
-            <div class="resources-grid" id="grid-recursos"></div>
+            <div class="sim-output" id="pendulumOutput">T = 2.01 s</div>
         </div>
-    </section>
+    </template>
+
+    <!-- ─── Floating Dock ─── -->
+    <div class="dock" id="floatingDock">
+        <button class="dock__btn" data-tooltip="Inicio" data-target="#hero">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <button class="dock__btn" data-tooltip="Laboratorios" data-target="#laboratorios">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
+        </button>
+        <button class="dock__btn" data-tooltip="Buscar" id="dockSearch">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="dock__btn" data-tooltip="Instrumentos" id="dockLabTools">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </button>
+        <button class="dock__btn" data-tooltip="Arriba" id="dockTop">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+    </div>
 
     <!-- ─── Footer ─── -->
     <footer class="footer">
         <div class="footer__inner">
-            <div class="footer__brand">
-                <div class="footer__logo">⚛</div>
-                <h3 class="footer__title">Portafolio de Física Aplicada</h3>
-                <p class="footer__text">Universidad Central del Ecuador — Facultad de Filosofía, Letras y Ciencias de la Educación</p>
-            </div>
-            <div class="footer__links">
-                <h4>Enlaces</h4>
-                <ul>
-                    <li><a href="#fundamentos">Fundamentos</a></li>
-                    <li><a href="#laboratorios">Laboratorios</a></li>
-                    <li><a href="#recursos">Recursos</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer__bottom">
-            <p>&copy; 2026 Portafolio de Física Aplicada · UCE</p>
+            <p>Universidad Central del Ecuador · Facultad de Filosofía · Física Aplicada</p>
+            <p class="footer__meta">Juan Valle · 4° Semestre · 2026</p>
         </div>
     </footer>
-
-    <button class="scroll-top" id="scrollTop" aria-label="Volver arriba">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-    </button>
 
     <script src="script.js"></script>
 </body>

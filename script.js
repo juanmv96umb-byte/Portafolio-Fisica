@@ -48,597 +48,766 @@
     var ALL_ITEMS = Object.values(DOCS).reduce(function (a, b) { return a.concat(b); }, []);
     var TOTAL_DOCS = ALL_ITEMS.length;
 
-    var favorites = loadFavorites();
+    var FAVORITES = JSON.parse(localStorage.getItem('favs') || '[]');
+    var PDF_PAGE = 1, PDF_TOTAL = 0, PDF_DOC = null;
 
     /* ═══════════════════════════════════════════
-       DOM HELPERS
+       EL
     ═══════════════════════════════════════════ */
 
     var $ = function (s, p) { return (p || document).querySelector(s); };
-    var $$ = function (s, p) { return Array.from((p || document).querySelectorAll(s)); };
+    var $$ = function (s, p) { return (p || document).querySelectorAll(s); };
 
-    /* ═══════════════════════════════════════════
-       SVG ICONS
-    ═══════════════════════════════════════════ */
-
-    var S = {
-        pdf: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
-        eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
-        dl: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-        heart: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
-        heartFill: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
-        empty: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>',
-        book: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-        beaker: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>',
-        clipboard: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>',
-        external: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+    var els = {
+        navToggle: $('#navToggle'),
+        navLinks: $('#navLinks'),
+        themeMatrix: $('#themeMatrix'),
+        grid: $('#docsGrid'),
+        chips: $$('#filterChips .chip'),
+        searchOverlay: $('#searchOverlay'),
+        searchToggle: $('#searchToggle'),
+        searchInput: $('#searchInput'),
+        searchResults: $('#searchResults'),
+        pdfModal: $('#pdfModal'),
+        pdfCanvas: $('#pdfCanvas'),
+        pdfTitle: $('#pdfModalTitle'),
+        pdfPrev: $('#pdfPrev'),
+        pdfNext: $('#pdfNext'),
+        pdfPageInfo: $('#pdfPageInfo'),
+        pdfClose: $('#pdfModalClose'),
+        pdfDownload: $('#pdfDownloadBtn'),
+        progress: $('#scrollProgressBar'),
+        docCounter: $('#docCounter'),
+        labCounter: $('#labCounter'),
+        gaugeArc: $('#gaugeArc'),
+        gaugeNeedle: $('#gaugeNeedle'),
+        gaugeValue: $('#gaugeValue'),
+        formulaTicker: $('#formulaTicker'),
+        labToolsModal: $('#labToolsModal'),
+        labToolsClose: $('#labToolsClose'),
+        dockSearch: $('#dockSearch'),
+        dockLabTools: $('#dockLabTools'),
+        dockTop: $('#dockTop'),
+        labToolPanel: $('#labToolPanel'),
+        particleCanvas: $('#particleCanvas'),
     };
 
-    var RES_ICONS = { book: S.book, beaker: S.beaker, clipboard: S.clipboard };
-
     /* ═══════════════════════════════════════════
-       FAVORITES
+       THEME MATRIX
     ═══════════════════════════════════════════ */
 
-    function loadFavorites() {
-        try { return JSON.parse(localStorage.getItem('pfavs')) || []; } catch (e) { return []; }
-    }
-    function saveFavorites() { localStorage.setItem('pfavs', JSON.stringify(favorites)); }
-    function toggleFav(file) {
-        var i = favorites.indexOf(file);
-        i > -1 ? favorites.splice(i, 1) : favorites.push(file);
-        saveFavorites();
-        updateStats();
-        return favorites.includes(file);
-    }
-    function isFav(file) { return favorites.includes(file); }
-
-    /* ═══════════════════════════════════════════
-       ESCAPE
-    ═══════════════════════════════════════════ */
-
-    function esc(str) {
-        var d = document.createElement('div');
-        d.textContent = str;
-        return d.innerHTML;
-    }
-
-    /* ═══════════════════════════════════════════
-       RENDER
-    ═══════════════════════════════════════════ */
-
-    function renderDocCard(item) {
-        var faved = isFav(item.file);
-        var card = document.createElement('div');
-        card.className = 'doc-card';
-        card.dataset.file = item.file;
-        card.dataset.search = (item.title + ' ' + (item.type || '')).toLowerCase();
-
-        card.innerHTML =
-            '<div class="doc-card__thumb doc-card__thumb--loading"><div class="doc-card__thumb-placeholder">' + S.pdf + '</div></div>' +
-            '<div class="doc-card__body">' +
-                '<div class="doc-card__title">' + esc(item.title) + '</div>' +
-                '<div class="doc-card__meta">' + esc(item.type || item.section || 'Documento') + '</div>' +
-                '<div class="doc-card__actions">' +
-                    '<a href="' + esc(item.file) + '" target="_blank" rel="noopener" class="doc-card__btn doc-card__btn--primary">' + S.eye + ' Ver</a>' +
-                    '<a href="' + esc(item.file) + '" download class="doc-card__btn">' + S.dl + '</a>' +
-                    '<button class="doc-card__btn doc-card__btn--fav" data-faved="' + faved + '" title="' + (faved ? 'Quitar' : 'Añadir') + ' favorito">' + (faved ? S.heartFill : S.heart) + '</button>' +
-                '</div>' +
-            '</div>';
-
-        card.querySelector('.doc-card__btn--fav').addEventListener('click', function (e) {
-            e.preventDefault();
-            var now = toggleFav(item.file);
-            this.dataset.faved = now;
-            this.innerHTML = now ? S.heartFill : S.heart;
-            this.title = now ? 'Quitar favorito' : 'Añadir favorito';
-        });
-
-        return card;
-    }
-
-    function renderResCard(item) {
-        var a = document.createElement('a');
-        a.className = 'resource-card';
-        a.href = item.file;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.innerHTML =
-            '<div class="resource-card__icon">' + (RES_ICONS[item.icon] || S.book) + '</div>' +
-            '<div class="resource-card__info">' +
-                '<div class="resource-card__title">' + esc(item.title) + '</div>' +
-                '<div class="resource-card__desc">' + esc(item.desc || '') + '</div>' +
-            '</div>' +
-            '<div class="resource-card__arrow">' + S.external + '</div>';
-        return a;
-    }
-
-    function renderEmpty(grid) {
-        grid.innerHTML = '<div class="empty-state">' + S.empty + '<div class="empty-state__text">Sección sin documentos aún</div></div>';
-    }
-
-    function renderGrid(id, items) {
-        var grid = document.getElementById('grid-' + id);
-        if (!grid) return;
-        grid.innerHTML = '';
-        if (!items || items.length === 0) {
-            renderEmpty(grid);
-            return;
-        }
-        var frag = document.createDocumentFragment();
-        items.forEach(function (item) {
-            frag.appendChild(item.desc !== undefined ? renderResCard(item) : renderDocCard(item));
-        });
-        grid.appendChild(frag);
-    }
-
-    function renderAll() {
-        for (var key in DOCS) {
-            if (!DOCS.hasOwnProperty(key)) continue;
-            if (key === 'individuales') continue;
-            if (key === 'trabajos') {
-                renderGrid('trabajos', DOCS.trabajos.concat(DOCS.individuales));
-            } else {
-                renderGrid(key, DOCS[key]);
-            }
-        }
-    }
-
-    /* ═══════════════════════════════════════════
-       GAUGE NEEDLE
-    ═══════════════════════════════════════════ */
-
-    var SECTION_TARGETS = {
-        fundamentos: 10,
-        laboratorios: 10,
-        trabajos: 10,
-        mapas: 10,
-        pruebas: 10,
-        ensayos: 5,
-    };
-
-    function calcProgress() {
-        var total = 0, max = 0;
-        for (var key in SECTION_TARGETS) {
-            max += SECTION_TARGETS[key];
-            var items = DOCS[key] || [];
-            if (key === 'trabajos') items = items.concat(DOCS.individuales || []);
-            total += Math.min(items.length, SECTION_TARGETS[key]);
-        }
-        return max > 0 ? Math.round((total / max) * 100) : 0;
-    }
-
-    function updateGauge(pct) {
-        var needle = document.getElementById('gaugeNeedle');
-        var val = document.getElementById('gaugeValue');
-        if (needle) {
-            var angle = -60 + (pct / 100) * 120;
-            needle.setAttribute('transform', 'rotate(' + angle + ',130,108)');
-        }
-        if (val) {
-            var start = 0;
-            var duration = 1100;
-            var startTime = null;
-            function step(ts) {
-                if (!startTime) startTime = ts;
-                var progress = Math.min((ts - startTime) / duration, 1);
-                var eased = 1 - Math.pow(1 - progress, 3);
-                val.textContent = Math.floor(eased * pct);
-                if (progress < 1) requestAnimationFrame(step);
-            }
-            requestAnimationFrame(step);
-        }
-    }
-
-    /* ═══════════════════════════════════════════
-       STATS
-    ═══════════════════════════════════════════ */
-
-    var statsAnimated = false;
-
-    function animateCounter(el, target, duration) {
-        duration = duration || 1200;
-        var startTime = null;
-        function step(ts) {
-            if (!startTime) startTime = ts;
-            var progress = Math.min((ts - startTime) / duration, 1);
-            var eased = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.floor(eased * target);
-            if (progress < 1) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-    }
-
-    function updateStats() {
-        var td = document.getElementById('totalDocs');
-        var fv = document.getElementById('favoritosCount');
-        var sc = document.getElementById('sectionCount');
-
-        if (!statsAnimated) {
-            if (td) animateCounter(td, TOTAL_DOCS);
-            if (fv) animateCounter(fv, favorites.length);
-            if (sc) animateCounter(sc, Object.keys(DOCS).length);
-            statsAnimated = true;
-        } else {
-            if (td) td.textContent = TOTAL_DOCS;
-            if (fv) fv.textContent = favorites.length;
-            if (sc) sc.textContent = Object.keys(DOCS).length;
-        }
-
-        updateGauge(calcProgress());
-    }
-
-    /* ═══════════════════════════════════════════
-       THUMBNAIL ENGINE
-    ═══════════════════════════════════════════ */
-
-    var thumbQueue = [];
-    var thumbBusy = false;
-
-    function ensurePdfReady() {
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            return true;
-        }
-        return false;
-    }
-
-    function queueThumbnail(file, container) {
-        thumbQueue.push({ file: file, el: container });
-        processQueue();
-    }
-
-    function processQueue() {
-        if (thumbBusy || thumbQueue.length === 0) return;
-        thumbBusy = true;
-        var job = thumbQueue.shift();
-        renderThumb(job.file, job.el, function () {
-            thumbBusy = false;
-            processQueue();
+    function setTheme(name) {
+        document.documentElement.setAttribute('data-theme', name);
+        localStorage.setItem('theme', name);
+        els.themeMatrix.querySelectorAll('.theme-btn').forEach(function (b) {
+            var act = b.getAttribute('data-theme') === name;
+            b.classList.toggle('is-active', act);
+            b.setAttribute('aria-checked', act);
         });
     }
 
-    function renderThumb(file, container, done) {
-        if (!ensurePdfReady()) {
-            container.classList.remove('doc-card__thumb--loading');
-            container.classList.add('doc-card__thumb--fallback');
-            done();
-            return;
-        }
+    var saved = localStorage.getItem('theme') || 'quantum';
+    setTheme(saved);
 
-        var key = 't_' + file.replace(/[^a-zA-Z0-9]/g, '_');
-        var cached;
-        try { cached = localStorage.getItem(key); } catch (e) {}
-        if (cached) {
-            container.innerHTML = '';
-            var img = document.createElement('img');
-            img.src = cached;
-            img.alt = '';
-            container.appendChild(img);
-            container.classList.remove('doc-card__thumb--loading');
-            done();
-            return;
-        }
+    els.themeMatrix.addEventListener('click', function (e) {
+        var btn = e.target.closest('.theme-btn');
+        if (!btn) return;
+        setTheme(btn.getAttribute('data-theme'));
+    });
 
-        pdfjsLib.getDocument(file).promise.then(function (pdf) {
-            return pdf.getPage(1).then(function (page) {
-                var vp = page.getViewport({ scale: 0.25 });
-                var c = document.createElement('canvas');
-                c.width = vp.width;
-                c.height = vp.height;
-                return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function () {
-                    var dataUrl = c.toDataURL('image/webp', 0.5);
-                    try { localStorage.setItem(key, dataUrl); } catch (e) {}
-                    container.innerHTML = '';
-                    container.appendChild(c);
-                    container.classList.remove('doc-card__thumb--loading');
-                    done();
+    /* ═══════════════════════════════════════════
+       PARTICLE CANVAS (N-Body Gravitational)
+    ═══════════════════════════════════════════ */
+
+    (function particles() {
+        var canvas = els.particleCanvas;
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W, H;
+        var particles = [];
+        var mouse = { x: -9999, y: -9999 };
+        var COUNT = 80;
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function init() {
+            particles = [];
+            for (var i = 0; i < COUNT; i++) {
+                particles.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    vx: (Math.random() - 0.5) * 0.8,
+                    vy: (Math.random() - 0.5) * 0.8,
+                    r: Math.random() * 2.5 + 1,
                 });
-            });
-        }).catch(function () {
-            container.classList.remove('doc-card__thumb--loading');
-            container.classList.add('doc-card__thumb--fallback');
-            done();
+            }
+        }
+        init();
+
+        document.addEventListener('mousemove', function (e) {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
         });
-    }
-
-    /* ═══════════════════════════════════════════
-       LAZY THUMBNAIL OBSERVER
-    ═══════════════════════════════════════════ */
-
-    function setupThumbObserver() {
-        var obs = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (!entry.isIntersecting) return;
-                var card = entry.target;
-                var container = card.querySelector('.doc-card__thumb--loading');
-                if (!container) return;
-                var file = card.dataset.file;
-                if (file) queueThumbnail(file, container);
-                obs.unobserve(card);
-            });
-        }, { rootMargin: '150px' });
-
-        $$('.doc-card__thumb--loading').forEach(function (el) {
-            var card = el.closest('.doc-card');
-            if (card) obs.observe(card);
+        document.addEventListener('mouseleave', function () {
+            mouse.x = -9999;
+            mouse.y = -9999;
         });
-    }
 
-    /* ═══════════════════════════════════════════
-       SEARCH & FILTER
-    ═══════════════════════════════════════════ */
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
 
-    function setupSearch(sectionId) {
-        var input = document.getElementById('search' + cap(sectionId));
-        var filterBtn = document.getElementById('filter' + cap(sectionId));
-        var grid = document.getElementById('grid-' + sectionId);
-        if (!input || !grid) return;
+            var style = getComputedStyle(document.documentElement);
+            var accent = style.getPropertyValue('--accent').trim() || 'oklch(0.65 0.2 280)';
+            var border = style.getPropertyValue('--border').trim() || 'oklch(0.3 0.04 265 / 0.3)';
 
-        var favOnly = false;
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
 
-        function apply() {
-            var q = input.value.toLowerCase().trim();
-            var cards = grid.querySelectorAll('.doc-card');
-            cards.forEach(function (c) {
-                var match = !q || (c.dataset.search || '').indexOf(q) > -1;
-                var fav = !favOnly || c.querySelector('.doc-card__btn--fav').dataset.faved === 'true';
-                c.classList.toggle('doc-card--hidden', !(match && fav));
-            });
-        }
+                var dx = mouse.x - p.x;
+                var dy = mouse.y - p.y;
+                var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                if (dist < 200) {
+                    var force = 0.02 * (1 - dist / 200);
+                    p.vx += (dx / dist) * force;
+                    p.vy += (dy / dist) * force;
+                }
 
-        input.addEventListener('input', apply);
+                for (var j = i + 1; j < particles.length; j++) {
+                    var q = particles[j];
+                    var gx = q.x - p.x;
+                    var gy = q.y - p.y;
+                    var gd = Math.sqrt(gx * gx + gy * gy) || 1;
+                    if (gd < 150) {
+                        var gf = 0.0003 / (gd * 0.1 + 1);
+                        p.vx += (gx / gd) * gf;
+                        p.vy += (gy / gd) * gf;
+                        q.vx -= (gx / gd) * gf;
+                        q.vy -= (gy / gd) * gf;
+                    }
+                }
 
-        if (filterBtn) {
-            filterBtn.addEventListener('click', function () {
-                favOnly = !favOnly;
-                this.classList.toggle('btn--active', favOnly);
-                this.innerHTML = favOnly ? S.heartFill + ' Favoritos' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg> Filtrar';
-                apply();
-            });
-        }
-    }
+                p.vx *= 0.99;
+                p.vy *= 0.99;
+                p.x += p.vx;
+                p.y += p.vy;
 
-    function cap(s) {
-        if (s === 'fundamentos') return 'Fundamentos';
-        if (s === 'laboratorios') return 'Laboratorios';
-        if (s === 'trabajos') return 'Trabajos';
-        return s.charAt(0).toUpperCase() + s.slice(1);
-    }
+                if (p.x < 0) p.x = W;
+                if (p.x > W) p.x = 0;
+                if (p.y < 0) p.y = H;
+                if (p.y > H) p.y = 0;
 
-    /* ═══════════════════════════════════════════
-       PARTICLES
-    ═══════════════════════════════════════════ */
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = accent;
+                ctx.globalAlpha = 0.15 + p.r * 0.1;
+                ctx.fill();
 
-    var particles = [];
-    var pCanvas, pCtx, pW, pH;
-
-    function initParticles() {
-        pCanvas = document.getElementById('heroParticles');
-        if (!pCanvas) return;
-        pCtx = pCanvas.getContext('2d');
-        resizeParticles();
-        createParticles();
-        animateParticles();
-    }
-
-    function resizeParticles() {
-        if (!pCanvas) return;
-        pW = pCanvas.width = pCanvas.offsetWidth;
-        pH = pCanvas.height = pCanvas.offsetHeight;
-    }
-
-    function createParticles() {
-        particles = [];
-        var count = Math.min(Math.floor((pW * pH) / 20000), 50);
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        for (var i = 0; i < count; i++) {
-            particles.push({
-                x: Math.random() * pW, y: Math.random() * pH,
-                vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
-                r: Math.random() * 1.8 + 0.8,
-                o: Math.random() * 0.4 + 0.15,
-            });
-        }
-    }
-
-    function animateParticles() {
-        if (!pCtx) return;
-        pCtx.clearRect(0, 0, pW, pH);
-        for (var i = 0; i < particles.length; i++) {
-            var p = particles[i];
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0) p.x = pW; if (p.x > pW) p.x = 0;
-            if (p.y < 0) p.y = pH; if (p.y > pH) p.y = 0;
-
-            pCtx.beginPath();
-            pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            pCtx.fillStyle = 'hsla(240, 30%, 40%, ' + p.o + ')';
-            pCtx.fill();
-
-            for (var j = i + 1; j < particles.length; j++) {
-                var q = particles[j];
-                var dx = p.x - q.x, dy = p.y - q.y, dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 110) {
-                    pCtx.beginPath();
-                    pCtx.moveTo(p.x, p.y);
-                    pCtx.lineTo(q.x, q.y);
-                    pCtx.strokeStyle = 'hsla(235, 30%, 45%, ' + (0.06 * (1 - dist / 110)) + ')';
-                    pCtx.lineWidth = 0.5;
-                    pCtx.stroke();
+                for (var k = i + 1; k < particles.length; k++) {
+                    var p2 = particles[k];
+                    var ld = Math.hypot(p2.x - p.x, p2.y - p.y);
+                    if (ld < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = border;
+                        ctx.globalAlpha = 0.08 * (1 - ld / 100);
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
                 }
             }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(draw);
         }
-        requestAnimationFrame(animateParticles);
-    }
+        draw();
+
+        window.addEventListener('resize', init);
+    })();
+
+    /* ═══════════════════════════════════════════
+       CLICK RIPPLE
+    ═══════════════════════════════════════════ */
+
+    document.addEventListener('click', function (e) {
+        var ripple = document.createElement('div');
+        ripple.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;background:var(--accent);width:20px;height:20px;left:' + e.clientX + 'px;top:' + e.clientY + 'px;z-index:9999;translate:-50% -50%;animation:rippleOut 0.8s ease forwards';
+        var style = document.createElement('style');
+        style.textContent = '@keyframes rippleOut{0%{transform:scale(0);opacity:0.5}to{transform:scale(8);opacity:0}}';
+        document.head.appendChild(style);
+        document.body.appendChild(ripple);
+        setTimeout(function () { ripple.remove(); }, 800);
+    });
+
+    /* ═══════════════════════════════════════════
+       FORMULA TICKER
+    ═══════════════════════════════════════════ */
+
+    (function ticker() {
+        var formulas = [
+            'F = G·m₁m₂ / r²',
+            'E = mc²',
+            'Δx·Δp ≥ ħ/2',
+            'F = m·a',
+            'V = I·R',
+            'E = h·f',
+            'T = 2π√(L/g)',
+            'KE = ½mv²',
+            'F = k·q₁q₂ / r²',
+            'PV = nRT',
+        ];
+        var idx = 0;
+        var el = els.formulaTicker;
+        if (!el) return;
+
+        function show(i) {
+            var item = el.querySelector('.formula-ticker__item');
+            if (!item) {
+                var d = document.createElement('span');
+                d.className = 'formula-ticker__item is-visible';
+                d.textContent = formulas[i];
+                el.appendChild(d);
+                return;
+            }
+            item.classList.remove('is-visible');
+            setTimeout(function () {
+                item.textContent = formulas[i];
+                item.classList.add('is-visible');
+            }, 500);
+        }
+        show(0);
+        setInterval(function () {
+            idx = (idx + 1) % formulas.length;
+            show(idx);
+        }, 3500);
+    })();
 
     /* ═══════════════════════════════════════════
        SCROLL PROGRESS
     ═══════════════════════════════════════════ */
 
-    function setupScrollProgress() {
-        var bar = document.getElementById('scrollProgressBar');
-        if (!bar) return;
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function () {
-                var scrollH = document.documentElement.scrollHeight - window.innerHeight;
-                bar.style.width = (scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0) + '%';
-                ticking = false;
-            });
-        });
-    }
+    window.addEventListener('scroll', function () {
+        var s = window.scrollY;
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        els.progress.style.width = (h > 0 ? (s / h) * 100 : 0) + '%';
+    });
 
     /* ═══════════════════════════════════════════
-       SECTION ENTRANCE OBSERVER
+       MOBILE NAV
     ═══════════════════════════════════════════ */
 
-    function setupSectionObserver() {
-        var obs = new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
-                if (e.isIntersecting) e.target.classList.add('section--visible');
-            });
-        }, { threshold: 0.1 });
-        $$('[data-section]').forEach(function (s) { obs.observe(s); });
-    }
+    els.navToggle.addEventListener('click', function () {
+        var open = els.navLinks.classList.toggle('is-open');
+        els.navToggle.classList.toggle('is-active');
+        els.navToggle.setAttribute('aria-expanded', open);
+    });
+
+    els.navLinks.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+            els.navLinks.classList.remove('is-open');
+            els.navToggle.classList.remove('is-active');
+            els.navToggle.setAttribute('aria-expanded', 'false');
+        });
+    });
 
     /* ═══════════════════════════════════════════
-       NAV SCROLL SPY + SHADOW
+       GLOBAL SEARCH
     ═══════════════════════════════════════════ */
 
-    function setupScrollSpy() {
-        var links = $$('.top-nav__link');
-        var targets = $$('[data-section]');
-        var obs = new IntersectionObserver(function (entries) {
-            entries.forEach(function (e) {
-                if (!e.isIntersecting) return;
-                var id = e.target.id;
-                links.forEach(function (l) {
-                    l.removeAttribute('aria-current');
-                    if (l.getAttribute('href') === '#' + id) l.setAttribute('aria-current', 'page');
-                });
-            });
-        }, { threshold: 0.25, rootMargin: '0px 0px -30% 0px' });
-        targets.forEach(function (t) { obs.observe(t); });
+    var SEARCH_ITEMS = [];
+    var SEARCH_IDX = -1;
+
+    ALL_ITEMS.forEach(function (item, idx) {
+        SEARCH_ITEMS.push({
+            idx: idx,
+            title: item.title.toLowerCase(),
+            type: (item.type || '').toLowerCase(),
+            raw: item,
+        });
+    });
+
+    function openSearch() {
+        els.searchOverlay.classList.add('is-open');
+        els.searchInput.value = '';
+        els.searchResults.innerHTML = '';
+        SEARCH_IDX = -1;
+        setTimeout(function () { els.searchInput.focus(); }, 100);
     }
 
-    function setupNavScroll() {
-        var nav = document.getElementById('topNav');
-        if (!nav) return;
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function () {
-                nav.classList.toggle('top-nav--scrolled', window.scrollY > 40);
-                ticking = false;
-            });
-        });
+    function closeSearch() {
+        els.searchOverlay.classList.remove('is-open');
+        els.searchInput.blur();
     }
 
-    /* ═══════════════════════════════════════════
-       NAV TOGGLE
-    ═══════════════════════════════════════════ */
+    els.searchToggle.addEventListener('click', openSearch);
+    els.dockSearch.addEventListener('click', openSearch);
 
-    function setupNavToggle() {
-        var btn = document.getElementById('navToggle');
-        var menu = document.getElementById('navLinks');
-        if (!btn || !menu) return;
-        btn.addEventListener('click', function () {
-            var open = this.getAttribute('aria-expanded') === 'true';
-            this.setAttribute('aria-expanded', String(!open));
-            menu.classList.toggle('top-nav__links--open', !open);
-        });
-        menu.querySelectorAll('a').forEach(function (a) {
-            a.addEventListener('click', function () {
-                btn.setAttribute('aria-expanded', 'false');
-                menu.classList.remove('top-nav__links--open');
-            });
-        });
-    }
-
-    /* ═══════════════════════════════════════════
-       SCROLL TO TOP
-    ═══════════════════════════════════════════ */
-
-    function setupScrollTop() {
-        var btn = document.getElementById('scrollTop');
-        if (!btn) return;
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function () {
-                btn.classList.toggle('scroll-top--visible', window.scrollY > 400);
-                ticking = false;
-            });
-        });
-        btn.addEventListener('click', function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    /* ═══════════════════════════════════════════
-       THEME
-    ═══════════════════════════════════════════ */
-
-    function setupTheme() {
-        var toggle = document.getElementById('themeToggle');
-        if (!toggle) return;
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
-            toggle.setAttribute('aria-label', theme === 'dark' ? 'Activar tema claro' : 'Activar tema oscuro');
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            if (els.searchOverlay.classList.contains('is-open')) closeSearch();
+            else openSearch();
         }
-        var saved = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
-        toggle.addEventListener('click', function () {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            applyTheme(isDark ? 'light' : 'dark');
-            createParticles();
+        if (e.key === 'Escape') closeSearch();
+    });
+
+    els.searchOverlay.addEventListener('click', function (e) {
+        if (e.target === els.searchOverlay) closeSearch();
+    });
+
+    els.searchInput.addEventListener('input', function () {
+        var q = this.value.toLowerCase().trim();
+        SEARCH_IDX = -1;
+        if (!q) {
+            els.searchResults.innerHTML = '<div class="search-modal__empty">Escribí para buscar documentos</div>';
+            return;
+        }
+        var hits = SEARCH_ITEMS.filter(function (s) {
+            return s.title.indexOf(q) !== -1 || s.type.indexOf(q) !== -1;
+        }).slice(0, 10);
+        if (!hits.length) {
+            els.searchResults.innerHTML = '<div class="search-modal__empty">Sin resultados</div>';
+            return;
+        }
+        var html = '';
+        hits.forEach(function (h, i) {
+            html += '<div class="search-result" data-idx="' + i + '" data-file="' + h.raw.file + '" data-title="' + h.raw.title + '">' +
+                '<div class="search-result__icon">📄</div>' +
+                '<div class="search-result__info">' +
+                '<div class="search-result__title">' + h.raw.title + '</div>' +
+                '<div class="search-result__meta">' + (h.raw.type || 'Documento') + '</div>' +
+                '</div></div>';
         });
+        els.searchResults.innerHTML = html;
+        els.searchResults._hits = hits;
+    });
+
+    els.searchResults.addEventListener('click', function (e) {
+        var r = e.target.closest('.search-result');
+        if (!r) return;
+        openPdf(r.getAttribute('data-file'), r.getAttribute('data-title'));
+        closeSearch();
+    });
+
+    /* ═══════════════════════════════════════════
+       GAUGE ANIMATION
+    ═══════════════════════════════════════════ */
+
+    function animateGauge(targetPct) {
+        var arc = els.gaugeArc;
+        var needle = els.gaugeNeedle;
+        var val = els.gaugeValue;
+        if (!arc) return;
+        var total = 157;
+        var start = performance.now();
+        var from = parseFloat(val.textContent) || 0;
+
+        function step(now) {
+            var t = Math.min((now - start) / 1200, 1);
+            var ease = 1 - Math.pow(1 - t, 3);
+            var cur = from + (targetPct - from) * ease;
+            arc.style.strokeDashoffset = total - (total * cur / 100);
+            var angle = -120 + (cur / 100) * 240;
+            needle.setAttribute('transform', 'rotate(' + angle + ', 60, 58)');
+            val.textContent = Math.round(cur) + '%';
+            if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
     }
 
     /* ═══════════════════════════════════════════
-       RESIZE
+       RENDER DOCS
     ═══════════════════════════════════════════ */
 
-    function setupResize() {
-        var t;
-        window.addEventListener('resize', function () {
-            clearTimeout(t);
-            t = setTimeout(function () { resizeParticles(); createParticles(); }, 250);
+    function typeIcon(type) {
+        var m = { 'Sílabo': '📋', 'Fundamento': '📘', 'Laboratorio': '🔬', 'Grupal': '👥', 'Individual': '📝', 'Mapa Mental': '🧠', 'Prueba': '✍️', 'Carátula': '🪪', 'book': '📚' };
+        return m[type] || '📄';
+    }
+
+    function renderDocs(items) {
+        els.grid.innerHTML = '';
+        if (!items || items.length === 0) {
+            els.grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink-3)">No hay documentos en esta categoría</div>';
+            return;
+        }
+        items.forEach(function (item) {
+            var fav = FAVORITES.indexOf(item.file) !== -1;
+            var card = document.createElement('div');
+            card.className = 'doc-card';
+            card.setAttribute('data-file', item.file);
+            card.setAttribute('data-title', item.title);
+            card.innerHTML =
+                '<div class="doc-card__header">' +
+                '<div class="doc-card__icon">' + typeIcon(item.type) + '</div>' +
+                '<div class="doc-card__info">' +
+                '<div class="doc-card__title">' + item.title + '</div>' +
+                '<div class="doc-card__type">' + (item.type || 'Documento') + '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="doc-card__tags">' +
+                '<span class="doc-card__tag">' + (item.type || 'Documento') + '</span>' +
+                '</div>' +
+                '<div class="doc-card__actions">' +
+                '<a href="' + item.file + '" target="_blank" class="doc-card__action" title="Abrir PDF">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+                '</a>' +
+                '<button class="doc-card__action doc-card__action--fave' + (fav ? ' is-faved' : '') + '" data-file="' + item.file + '" title="' + (fav ? 'Quitar favorito' : 'Favorito') + '">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (fav ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' +
+                '</button>' +
+                '</div>';
+            els.grid.appendChild(card);
         });
     }
+
+    function filterDocs(filter, all) {
+        var items = all;
+        if (filter !== 'all') {
+            items = all.filter(function (item) {
+                var t = (item.type || '').toLowerCase();
+                return t.indexOf(filter) !== -1;
+            });
+        }
+        renderDocs(items);
+    }
+
+    var activeFilter = 'all';
+    els.chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            els.chips.forEach(function (c) { c.classList.remove('is-active'); c.setAttribute('aria-selected', 'false'); });
+            chip.classList.add('is-active');
+            chip.setAttribute('aria-selected', 'true');
+            activeFilter = chip.getAttribute('data-filter');
+            filterDocs(activeFilter, ALL_ITEMS);
+        });
+    });
+
+    /* ─── Click Doc to Open PDF ─── */
+    els.grid.addEventListener('click', function (e) {
+        var card = e.target.closest('.doc-card');
+        if (!card) return;
+        var btn = e.target.closest('button,a');
+        if (btn) return;
+        openPdf(card.getAttribute('data-file'), card.getAttribute('data-title'));
+    });
+
+    /* ─── Favorites ─── */
+    els.grid.addEventListener('click', function (e) {
+        var btn = e.target.closest('.doc-card__action--fave');
+        if (!btn) return;
+        var file = btn.getAttribute('data-file');
+        var idx = FAVORITES.indexOf(file);
+        if (idx === -1) {
+            FAVORITES.push(file);
+            btn.classList.add('is-faved');
+            btn.setAttribute('title', 'Quitar favorito');
+            btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        } else {
+            FAVORITES.splice(idx, 1);
+            btn.classList.remove('is-faved');
+            btn.setAttribute('title', 'Favorito');
+            btn.querySelector('svg').setAttribute('fill', 'none');
+        }
+        localStorage.setItem('favs', JSON.stringify(FAVORITES));
+    });
+
+    /* ═══════════════════════════════════════════
+       PDF VIEWER
+    ═══════════════════════════════════════════ */
+
+    function openPdf(file, title) {
+        els.pdfTitle.textContent = title || 'Documento';
+        els.pdfDownload.href = file;
+        PDF_PAGE = 1;
+        PDF_DOC = null;
+        els.pdfModal.classList.add('is-open');
+        loadPdf(file);
+    }
+
+    function loadPdf(url) {
+        if (!window.pdfjsLib) return;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.getDocument(url).promise.then(function (doc) {
+            PDF_DOC = doc;
+            PDF_TOTAL = doc.numPages;
+            renderPdfPage(1);
+        }).catch(function () {
+            els.pdfCanvas.insertAdjacentHTML('afterend', '<div style="color:var(--red);padding:24px">Error al cargar el PDF</div>');
+        });
+    }
+
+    function renderPdfPage(n) {
+        if (!PDF_DOC) return;
+        PDF_DOC.getPage(n).then(function (page) {
+            var vp = page.getViewport({ scale: 1.2 });
+            var canvas = els.pdfCanvas;
+            var ctx = canvas.getContext('2d');
+            canvas.width = vp.width;
+            canvas.height = vp.height;
+            page.render({ canvasContext: ctx, viewport: vp });
+            els.pdfPageInfo.textContent = n + ' / ' + PDF_TOTAL;
+            PDF_PAGE = n;
+        });
+    }
+
+    els.pdfPrev.addEventListener('click', function () {
+        if (PDF_PAGE > 1) renderPdfPage(PDF_PAGE - 1);
+    });
+    els.pdfNext.addEventListener('click', function () {
+        if (PDF_PAGE < PDF_TOTAL) renderPdfPage(PDF_PAGE + 1);
+    });
+    els.pdfClose.addEventListener('click', function () {
+        els.pdfModal.classList.remove('is-open');
+    });
+    els.pdfModal.addEventListener('click', function (e) {
+        if (e.target === els.pdfModal) els.pdfModal.classList.remove('is-open');
+    });
+
+    /* ═══════════════════════════════════════════
+       LAB TOOLS
+    ═══════════════════════════════════════════ */
+
+    els.dockLabTools.addEventListener('click', function () {
+        els.labToolsModal.classList.add('is-open');
+        els.labToolPanel.innerHTML = '';
+    });
+    els.labToolsClose.addEventListener('click', function () {
+        els.labToolsModal.classList.remove('is-open');
+    });
+    els.labToolsModal.addEventListener('click', function (e) {
+        if (e.target === els.labToolsModal) els.labToolsModal.classList.remove('is-open');
+    });
+
+    var LAB_SIMS = {};
+
+    document.querySelectorAll('.lab-tool').forEach(function (tool) {
+        tool.addEventListener('click', function () {
+            var name = tool.getAttribute('data-tool');
+            var tpl = document.getElementById(name + 'Sim');
+            if (!tpl) return;
+            els.labToolPanel.innerHTML = '';
+            els.labToolPanel.appendChild(tpl.content.cloneNode(true));
+
+            if (name === 'waves') initWaveSim();
+            else if (name === 'kinematics') initKinematicsSim();
+            else if (name === 'ohm') initOhmSim();
+            else if (name === 'pendulum') initPendulumSim();
+        });
+    });
+
+    /* ─── Wave Simulator ─── */
+    function initWaveSim() {
+        var canvas = document.getElementById('waveCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width, H = canvas.height;
+        var amp = 50, freq = 5, phase = 0;
+        var t = 0;
+
+        document.querySelector('.wave-amp').addEventListener('input', function () { amp = +this.value; });
+        document.querySelector('.wave-freq').addEventListener('input', function () { freq = +this.value; });
+        document.querySelector('.wave-phase').addEventListener('input', function () { phase = (+this.value) * Math.PI / 180; });
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.beginPath();
+            for (var x = 0; x < W; x++) {
+                var y = H / 2 + amp * Math.sin((x / W) * 2 * Math.PI * freq + t + phase);
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#888';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            t += 0.05;
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    /* ─── Kinematics Simulator ─── */
+    function initKinematicsSim() {
+        var canvas = document.getElementById('kinematicsCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width, H = canvas.height;
+        var v0 = 30, a = 5, dt = 10;
+        var ballX = 30;
+
+        document.querySelector('.k-v0').addEventListener('input', function () { v0 = +this.value; });
+        document.querySelector('.k-a').addEventListener('input', function () { a = +this.value; });
+        document.querySelector('.k-t').addEventListener('input', function () { dt = +this.value; });
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            var tSim = (Date.now() % (dt * 1000)) / 1000;
+            var d = v0 * tSim + 0.5 * a * tSim * tSim;
+            var vf = v0 + a * tSim;
+            var maxD = v0 * dt + 0.5 * a * dt * dt;
+            var x = 30 + (d / (maxD || 1)) * (W - 80);
+
+            ctx.beginPath();
+            ctx.arc(x, H / 2, 16, 0, Math.PI * 2);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#888';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(30, H / 2 + 30);
+            ctx.lineTo(W - 50, H / 2 + 30);
+            ctx.strokeStyle = 'var(--border)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            var out = document.getElementById('kinematicsOutput');
+            if (out) out.textContent = 'd = ' + d.toFixed(1) + ' m · vf = ' + vf.toFixed(1) + ' m/s';
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    /* ─── Ohm's Law Simulator ─── */
+    function initOhmSim() {
+        var vEl = document.querySelector('.ohm-v');
+        var rEl = document.querySelector('.ohm-r');
+        var out = document.getElementById('ohmOutput');
+
+        function update() {
+            var v = +(vEl ? vEl.value : 12);
+            var r = +(rEl ? rEl.value : 100);
+            if (out) out.textContent = 'I = ' + (v / r).toFixed(3) + ' A';
+        }
+
+        if (vEl) vEl.addEventListener('input', update);
+        if (rEl) rEl.addEventListener('input', update);
+        update();
+    }
+
+    /* ─── Pendulum Simulator ─── */
+    function initPendulumSim() {
+        var canvas = document.getElementById('pendulumCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width, H = canvas.height;
+        var L = 1, g = 9.8;
+
+        document.querySelector('.pend-l').addEventListener('input', function () { L = +this.value; });
+        document.querySelector('.pend-g').addEventListener('input', function () { g = +this.value; });
+
+        var pivotX = W / 2, pivotY = 40;
+        var angle = 0.3;
+        var omega = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            var scale = Math.min(W, H) / 6;
+            var len = L * scale;
+            var T = 2 * Math.PI * Math.sqrt(L / g);
+
+            var alpha = -(g / (L || 1)) * Math.sin(angle);
+            omega += alpha * 0.02;
+            omega *= 0.998;
+            angle += omega * 0.02;
+
+            var bobX = pivotX + len * Math.sin(angle);
+            var bobY = pivotY + len * Math.cos(angle);
+
+            ctx.beginPath();
+            ctx.moveTo(pivotX, pivotY);
+            ctx.lineTo(bobX, bobY);
+            ctx.strokeStyle = 'var(--ink-2)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(pivotX, pivotY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'var(--ink-2)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(bobX, bobY, 10, 0, Math.PI * 2);
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#888';
+            ctx.fill();
+
+            var out = document.getElementById('pendulumOutput');
+            if (out) out.textContent = 'T = ' + T.toFixed(2) + ' s';
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    /* ═══════════════════════════════════════════
+       COUNTERS & GAUGE
+    ═══════════════════════════════════════════ */
+
+    function countUp(el, target) {
+        if (!el) return;
+        var start = performance.now();
+        var from = 0;
+
+        function step(now) {
+            var t = Math.min((now - start) / 800, 1);
+            var ease = 1 - Math.pow(1 - t, 3);
+            el.textContent = Math.round(ease * target);
+            if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function initStats() {
+        var total = TOTAL_DOCS;
+        var labs = DOCS.laboratorios ? DOCS.laboratorios.length : 0;
+
+        countUp(els.docCounter, total);
+        countUp(els.labCounter, labs);
+
+        var pct = Math.round((total / 22) * 100);
+        setTimeout(function () { animateGauge(pct); }, 400);
+
+        var s = function (id, val, total) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.style.width = Math.round((val / total) * 100) + '%';
+            }
+        };
+        s('statSilabo', 1, 1);
+        s('statFundamentos', DOCS.fundamentos.length, 4);
+        s('statLab', DOCS.laboratorios.length, 3);
+        s('statMapas', DOCS.mapas.length, 4);
+        s('statPruebas', DOCS.pruebas.length, 2);
+
+        var setVal = function (id, val, total) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = val + '/' + total;
+        };
+        setVal('statFundamentosVal', DOCS.fundamentos.length, 4);
+        setVal('statLabVal', DOCS.laboratorios.length, 3);
+        setVal('statMapasVal', DOCS.mapas.length, 4);
+        setVal('statPruebasVal', DOCS.pruebas.length, 2);
+    }
+
+    /* ═══════════════════════════════════════════
+       DOCK: SCROLL TO TOP
+    ═══════════════════════════════════════════ */
+
+    els.dockTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.querySelectorAll('.dock__btn[data-target]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var t = btn.getAttribute('data-target');
+            if (t) document.querySelector(t).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
 
     /* ═══════════════════════════════════════════
        INIT
     ═══════════════════════════════════════════ */
 
-    function init() {
-        setupTheme();
-        renderAll();
-        updateStats();
-        setupSearch('fundamentos');
-        setupSearch('laboratorios');
-        setupSearch('trabajos');
-        setupThumbObserver();
-        initParticles();
-        setupSectionObserver();
-        setupScrollSpy();
-        setupNavToggle();
-        setupScrollTop();
-        setupScrollProgress();
-        setupNavScroll();
-        setupResize();
-    }
+    renderDocs(ALL_ITEMS);
+    initStats();
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
 })();

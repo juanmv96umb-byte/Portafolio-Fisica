@@ -5,7 +5,7 @@
        DATA
     ═══════════════════════════════════════════ */
 
-    const DOCS = {
+    var DOCS = {
         caratula: [
             { title: 'Hoja de Vida / Curriculum', file: 'Informacion_Personal/Curriculum.pdf', type: 'Carátula' },
         ],
@@ -48,10 +48,6 @@
     var ALL_ITEMS = Object.values(DOCS).reduce(function (a, b) { return a.concat(b); }, []);
     var TOTAL_DOCS = ALL_ITEMS.length;
 
-    /* ═══════════════════════════════════════════
-       STATE
-    ═══════════════════════════════════════════ */
-
     var favorites = loadFavorites();
 
     /* ═══════════════════════════════════════════
@@ -87,11 +83,7 @@
     function loadFavorites() {
         try { return JSON.parse(localStorage.getItem('pfavs')) || []; } catch (e) { return []; }
     }
-
-    function saveFavorites() {
-        localStorage.setItem('pfavs', JSON.stringify(favorites));
-    }
-
+    function saveFavorites() { localStorage.setItem('pfavs', JSON.stringify(favorites)); }
     function toggleFav(file) {
         var i = favorites.indexOf(file);
         i > -1 ? favorites.splice(i, 1) : favorites.push(file);
@@ -99,7 +91,6 @@
         updateStats();
         return favorites.includes(file);
     }
-
     function isFav(file) { return favorites.includes(file); }
 
     /* ═══════════════════════════════════════════
@@ -113,10 +104,10 @@
     }
 
     /* ═══════════════════════════════════════════
-       RENDER: DOCUMENT CARD
+       RENDER
     ═══════════════════════════════════════════ */
 
-    function renderDocCard(item, index) {
+    function renderDocCard(item) {
         var faved = isFav(item.file);
         var card = document.createElement('div');
         card.className = 'doc-card';
@@ -146,11 +137,7 @@
         return card;
     }
 
-    /* ═══════════════════════════════════════════
-       RENDER: RESOURCE CARD
-    ═══════════════════════════════════════════ */
-
-    function renderResCard(item, index) {
+    function renderResCard(item) {
         var a = document.createElement('a');
         a.className = 'resource-card';
         a.href = item.file;
@@ -166,17 +153,9 @@
         return a;
     }
 
-    /* ═══════════════════════════════════════════
-       RENDER: EMPTY STATE
-    ═══════════════════════════════════════════ */
-
     function renderEmpty(grid) {
         grid.innerHTML = '<div class="empty-state">' + S.empty + '<div class="empty-state__text">Sección sin documentos aún</div></div>';
     }
-
-    /* ═══════════════════════════════════════════
-       RENDER: GRID
-    ═══════════════════════════════════════════ */
 
     function renderGrid(id, items) {
         var grid = document.getElementById('grid-' + id);
@@ -187,12 +166,8 @@
             return;
         }
         var frag = document.createDocumentFragment();
-        items.forEach(function (item, index) {
-            if (item.desc !== undefined) {
-                frag.appendChild(renderResCard(item, index));
-            } else {
-                frag.appendChild(renderDocCard(item, index));
-            }
+        items.forEach(function (item) {
+            frag.appendChild(item.desc !== undefined ? renderResCard(item) : renderDocCard(item));
         });
         grid.appendChild(frag);
     }
@@ -210,120 +185,7 @@
     }
 
     /* ═══════════════════════════════════════════
-       PARTICLE SYSTEM
-    ═══════════════════════════════════════════ */
-
-    var particles = [];
-    var pCanvas, pCtx, pW, pH;
-    var pRAF;
-
-    function initParticles() {
-        pCanvas = document.getElementById('heroParticles');
-        if (!pCanvas) return;
-        pCtx = pCanvas.getContext('2d');
-        resizeParticles();
-        createParticles();
-        animateParticles();
-    }
-
-    function resizeParticles() {
-        if (!pCanvas) return;
-        pW = pCanvas.width = pCanvas.offsetWidth;
-        pH = pCanvas.height = pCanvas.offsetHeight;
-    }
-
-    function createParticles() {
-        particles = [];
-        var count = Math.min(Math.floor((pW * pH) / 18000), 60);
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        for (var i = 0; i < count; i++) {
-            particles.push({
-                x: Math.random() * pW,
-                y: Math.random() * pH,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: (Math.random() - 0.5) * 0.4,
-                r: Math.random() * 2 + 1,
-                o: Math.random() * 0.4 + 0.1,
-                hue: isDark ? 260 + Math.random() * 20 : 260 + Math.random() * 20,
-            });
-        }
-    }
-
-    function animateParticles() {
-        if (!pCtx) return;
-        pCtx.clearRect(0, 0, pW, pH);
-        for (var i = 0; i < particles.length; i++) {
-            var p = particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            if (p.x < 0) p.x = pW;
-            if (p.x > pW) p.x = 0;
-            if (p.y < 0) p.y = pH;
-            if (p.y > pH) p.y = 0;
-
-            pCtx.beginPath();
-            pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            pCtx.fillStyle = 'hsla(' + p.hue + ', 60%, 55%, ' + p.o + ')';
-            pCtx.fill();
-
-            for (var j = i + 1; j < particles.length; j++) {
-                var q = particles[j];
-                var dx = p.x - q.x;
-                var dy = p.y - q.y;
-                var dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 120) {
-                    pCtx.beginPath();
-                    pCtx.moveTo(p.x, p.y);
-                    pCtx.lineTo(q.x, q.y);
-                    pCtx.strokeStyle = 'hsla(265, 50%, 55%, ' + (0.08 * (1 - dist / 120)) + ')';
-                    pCtx.lineWidth = 0.5;
-                    pCtx.stroke();
-                }
-            }
-        }
-        pRAF = requestAnimationFrame(animateParticles);
-    }
-
-    /* ═══════════════════════════════════════════
-       SCROLL PROGRESS
-    ═══════════════════════════════════════════ */
-
-    function setupScrollProgress() {
-        var bar = document.getElementById('scrollProgressBar');
-        if (!bar) return;
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function () {
-                var scrollH = document.documentElement.scrollHeight - window.innerHeight;
-                var pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
-                bar.style.width = pct + '%';
-                ticking = false;
-            });
-        });
-    }
-
-    /* ═══════════════════════════════════════════
-       ANIMATED COUNTERS
-    ═══════════════════════════════════════════ */
-
-    function animateCounter(el, target, duration) {
-        duration = duration || 1200;
-        var start = 0;
-        var startTime = null;
-        function step(ts) {
-            if (!startTime) startTime = ts;
-            var progress = Math.min((ts - startTime) / duration, 1);
-            var eased = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.floor(eased * target);
-            if (progress < 1) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-    }
-
-    /* ═══════════════════════════════════════════
-       PROGRESS BAR (Portfolio completion)
+       GAUGE NEEDLE
     ═══════════════════════════════════════════ */
 
     var SECTION_TARGETS = {
@@ -336,8 +198,7 @@
     };
 
     function calcProgress() {
-        var total = 0;
-        var max = 0;
+        var total = 0, max = 0;
         for (var key in SECTION_TARGETS) {
             max += SECTION_TARGETS[key];
             var items = DOCS[key] || [];
@@ -347,12 +208,26 @@
         return max > 0 ? Math.round((total / max) * 100) : 0;
     }
 
-    function updateProgress() {
-        var pct = calcProgress();
-        var fill = document.getElementById('progressFill');
-        var label = document.getElementById('progressPct');
-        if (fill) fill.style.width = pct + '%';
-        if (label) label.textContent = pct + '%';
+    function updateGauge(pct) {
+        var needle = document.getElementById('gaugeNeedle');
+        var val = document.getElementById('gaugeValue');
+        if (needle) {
+            var angle = -60 + (pct / 100) * 120;
+            needle.setAttribute('transform', 'rotate(' + angle + ',130,108)');
+        }
+        if (val) {
+            var start = 0;
+            var duration = 1100;
+            var startTime = null;
+            function step(ts) {
+                if (!startTime) startTime = ts;
+                var progress = Math.min((ts - startTime) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                val.textContent = Math.floor(eased * pct);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
     }
 
     /* ═══════════════════════════════════════════
@@ -360,6 +235,19 @@
     ═══════════════════════════════════════════ */
 
     var statsAnimated = false;
+
+    function animateCounter(el, target, duration) {
+        duration = duration || 1200;
+        var startTime = null;
+        function step(ts) {
+            if (!startTime) startTime = ts;
+            var progress = Math.min((ts - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target);
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
 
     function updateStats() {
         var td = document.getElementById('totalDocs');
@@ -376,6 +264,8 @@
             if (fv) fv.textContent = favorites.length;
             if (sc) sc.textContent = Object.keys(DOCS).length;
         }
+
+        updateGauge(calcProgress());
     }
 
     /* ═══════════════════════════════════════════
@@ -456,10 +346,8 @@
        LAZY THUMBNAIL OBSERVER
     ═══════════════════════════════════════════ */
 
-    var thumbObserver = null;
-
     function setupThumbObserver() {
-        thumbObserver = new IntersectionObserver(function (entries) {
+        var obs = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (!entry.isIntersecting) return;
                 var card = entry.target;
@@ -467,13 +355,13 @@
                 if (!container) return;
                 var file = card.dataset.file;
                 if (file) queueThumbnail(file, container);
-                thumbObserver.unobserve(card);
+                obs.unobserve(card);
             });
         }, { rootMargin: '150px' });
 
         $$('.doc-card__thumb--loading').forEach(function (el) {
             var card = el.closest('.doc-card');
-            if (card) thumbObserver.observe(card);
+            if (card) obs.observe(card);
         });
     }
 
@@ -492,15 +380,11 @@
         function apply() {
             var q = input.value.toLowerCase().trim();
             var cards = grid.querySelectorAll('.doc-card');
-            var v = 0;
             cards.forEach(function (c) {
                 var match = !q || (c.dataset.search || '').indexOf(q) > -1;
                 var fav = !favOnly || c.querySelector('.doc-card__btn--fav').dataset.faved === 'true';
-                var show = match && fav;
-                c.classList.toggle('doc-card--hidden', !show);
-                if (show) v++;
+                c.classList.toggle('doc-card--hidden', !(match && fav));
             });
-            return v;
         }
 
         input.addEventListener('input', apply);
@@ -509,7 +393,7 @@
             filterBtn.addEventListener('click', function () {
                 favOnly = !favOnly;
                 this.classList.toggle('btn--active', favOnly);
-                this.innerHTML = (favOnly ? S.heartFill + ' Favoritos' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg> Filtrar');
+                this.innerHTML = favOnly ? S.heartFill + ' Favoritos' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg> Filtrar';
                 apply();
             });
         }
@@ -523,6 +407,91 @@
     }
 
     /* ═══════════════════════════════════════════
+       PARTICLES
+    ═══════════════════════════════════════════ */
+
+    var particles = [];
+    var pCanvas, pCtx, pW, pH;
+
+    function initParticles() {
+        pCanvas = document.getElementById('heroParticles');
+        if (!pCanvas) return;
+        pCtx = pCanvas.getContext('2d');
+        resizeParticles();
+        createParticles();
+        animateParticles();
+    }
+
+    function resizeParticles() {
+        if (!pCanvas) return;
+        pW = pCanvas.width = pCanvas.offsetWidth;
+        pH = pCanvas.height = pCanvas.offsetHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        var count = Math.min(Math.floor((pW * pH) / 20000), 50);
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        for (var i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * pW, y: Math.random() * pH,
+                vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+                r: Math.random() * 1.8 + 0.8,
+                o: Math.random() * 0.4 + 0.15,
+            });
+        }
+    }
+
+    function animateParticles() {
+        if (!pCtx) return;
+        pCtx.clearRect(0, 0, pW, pH);
+        for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = pW; if (p.x > pW) p.x = 0;
+            if (p.y < 0) p.y = pH; if (p.y > pH) p.y = 0;
+
+            pCtx.beginPath();
+            pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            pCtx.fillStyle = 'hsla(240, 30%, 40%, ' + p.o + ')';
+            pCtx.fill();
+
+            for (var j = i + 1; j < particles.length; j++) {
+                var q = particles[j];
+                var dx = p.x - q.x, dy = p.y - q.y, dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 110) {
+                    pCtx.beginPath();
+                    pCtx.moveTo(p.x, p.y);
+                    pCtx.lineTo(q.x, q.y);
+                    pCtx.strokeStyle = 'hsla(235, 30%, 45%, ' + (0.06 * (1 - dist / 110)) + ')';
+                    pCtx.lineWidth = 0.5;
+                    pCtx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animateParticles);
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLL PROGRESS
+    ═══════════════════════════════════════════ */
+
+    function setupScrollProgress() {
+        var bar = document.getElementById('scrollProgressBar');
+        if (!bar) return;
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                var scrollH = document.documentElement.scrollHeight - window.innerHeight;
+                bar.style.width = (scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0) + '%';
+                ticking = false;
+            });
+        });
+    }
+
+    /* ═══════════════════════════════════════════
        SECTION ENTRANCE OBSERVER
     ═══════════════════════════════════════════ */
 
@@ -532,7 +501,6 @@
                 if (e.isIntersecting) e.target.classList.add('section--visible');
             });
         }, { threshold: 0.1 });
-
         $$('[data-section]').forEach(function (s) { obs.observe(s); });
     }
 
@@ -543,7 +511,6 @@
     function setupScrollSpy() {
         var links = $$('.top-nav__link');
         var targets = $$('[data-section]');
-
         var obs = new IntersectionObserver(function (entries) {
             entries.forEach(function (e) {
                 if (!e.isIntersecting) return;
@@ -554,7 +521,6 @@
                 });
             });
         }, { threshold: 0.25, rootMargin: '0px 0px -30% 0px' });
-
         targets.forEach(function (t) { obs.observe(t); });
     }
 
@@ -573,20 +539,18 @@
     }
 
     /* ═══════════════════════════════════════════
-       NAV TOGGLE (mobile)
+       NAV TOGGLE
     ═══════════════════════════════════════════ */
 
     function setupNavToggle() {
         var btn = document.getElementById('navToggle');
         var menu = document.getElementById('navLinks');
         if (!btn || !menu) return;
-
         btn.addEventListener('click', function () {
             var open = this.getAttribute('aria-expanded') === 'true';
             this.setAttribute('aria-expanded', String(!open));
             menu.classList.toggle('top-nav__links--open', !open);
         });
-
         menu.querySelectorAll('a').forEach(function (a) {
             a.addEventListener('click', function () {
                 btn.setAttribute('aria-expanded', 'false');
@@ -617,44 +581,36 @@
     }
 
     /* ═══════════════════════════════════════════
-       THEME SYSTEM
+       THEME
     ═══════════════════════════════════════════ */
 
     function setupTheme() {
         var toggle = document.getElementById('themeToggle');
         if (!toggle) return;
-
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
             toggle.setAttribute('aria-label', theme === 'dark' ? 'Activar tema claro' : 'Activar tema oscuro');
         }
-
         var saved = localStorage.getItem('theme');
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var currentTheme = saved || (prefersDark ? 'dark' : 'light');
-        applyTheme(currentTheme);
-
+        applyTheme(saved || (prefersDark ? 'dark' : 'light'));
         toggle.addEventListener('click', function () {
             var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             applyTheme(isDark ? 'light' : 'dark');
-            // Recreate particles with new theme colors
             createParticles();
         });
     }
 
     /* ═══════════════════════════════════════════
-       RESIZE HANDLER
+       RESIZE
     ═══════════════════════════════════════════ */
 
     function setupResize() {
-        var resizeTimer;
+        var t;
         window.addEventListener('resize', function () {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function () {
-                resizeParticles();
-                createParticles();
-            }, 250);
+            clearTimeout(t);
+            t = setTimeout(function () { resizeParticles(); createParticles(); }, 250);
         });
     }
 
@@ -663,32 +619,16 @@
     ═══════════════════════════════════════════ */
 
     function init() {
-        // 1. Theme
         setupTheme();
-
-        // 2. Render everything
         renderAll();
-
-        // 3. Stats + Progress
         updateStats();
-        updateProgress();
-
-        // 4. Search
         setupSearch('fundamentos');
         setupSearch('laboratorios');
         setupSearch('trabajos');
-
-        // 5. Thumbnails (lazy)
         setupThumbObserver();
-
-        // 6. Particles
         initParticles();
-
-        // 7. Observers
         setupSectionObserver();
         setupScrollSpy();
-
-        // 8. UI
         setupNavToggle();
         setupScrollTop();
         setupScrollProgress();

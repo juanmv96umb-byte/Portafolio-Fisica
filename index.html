@@ -45,6 +45,7 @@
             </div>
             <ul class="top-nav__links" id="navLinks">
                 <li><a href="#hero" class="top-nav__link">Inicio</a></li>
+                <li><a href="#perfil" class="top-nav__link">Perfil</a></li>
                 <li><a href="#silabo" class="top-nav__link">Sílabo</a></li>
                 <li><a href="#fundamentos" class="top-nav__link">Fundamentos</a></li>
                 <li><a href="#laboratorios" class="top-nav__link">Laboratorios</a></li>
@@ -71,6 +72,16 @@
             <span class="hero__float hero__float--8">Δ</span>
         </div>
         <div class="hero__content">
+            <!-- 3D CSS Orbital Atom -->
+            <div class="hero__atom-container">
+                <div class="atom-visual">
+                    <div class="atom-orbit orbit-x"><div class="atom-electron"></div></div>
+                    <div class="atom-orbit orbit-y"><div class="atom-electron"></div></div>
+                    <div class="atom-orbit orbit-z"><div class="atom-electron"></div></div>
+                    <div class="atom-nucleus"></div>
+                </div>
+            </div>
+            
             <div class="hero__badge">
                 <span class="hero__badge-dot"></span>
                 Universidad Central del Ecuador
@@ -133,6 +144,72 @@
                 <div class="stat-card__ring stat-card__ring--3"></div>
                 <span class="stat-card__num" id="sectionCount">0</span>
                 <span class="stat-card__label">Secciones</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Información Académica (Bento Grid) ─── -->
+    <section class="section section--alt" id="perfil" data-section>
+        <div class="section__divider" aria-hidden="true">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0 L0,60 C200,0 400,120 600,60 C800,0 1000,120 1200,60 L1200,0 Z" fill="currentColor"/></svg>
+        </div>
+        <div class="section__inner">
+            <div class="section__header">
+                <div class="section__icon">🎓</div>
+                <h2 class="section__title">Perfil del Estudiante</h2>
+                <p class="section__desc">Información institucional y curricular del autor</p>
+            </div>
+            
+            <div class="bento-grid">
+                <!-- Bento Card 1: Estudiante -->
+                <div class="bento-card bento-card--large">
+                    <div class="bento-card__bg"></div>
+                    <div class="bento-card__content">
+                        <div class="student-profile">
+                            <div class="student-profile__avatar">JV</div>
+                            <div class="student-profile__details">
+                                <h3 class="student-profile__name">Juan Valle</h3>
+                                <span class="student-profile__status">Estudiante de Pregrado</span>
+                            </div>
+                        </div>
+                        <div class="student-info-list">
+                            <div class="info-row">
+                                <span class="info-row__label">Carrera</span>
+                                <span class="info-row__val">Pedagogía de las Ciencias Experimentales — Informática</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-row__label">Semestre</span>
+                                <span class="info-row__val">5to Semestre "B"</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-row__label">Periodo</span>
+                                <span class="info-row__val">2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento Card 2: Universidad -->
+                <div class="bento-card">
+                    <div class="bento-card__bg"></div>
+                    <div class="bento-card__content university-card">
+                        <span class="university-card__icon">🏛️</span>
+                        <h4 class="university-card__title">Institución</h4>
+                        <p class="university-card__name">Universidad Central del Ecuador</p>
+                        <span class="university-card__tag">UCE</span>
+                    </div>
+                </div>
+
+                <!-- Bento Card 3: Asignatura -->
+                <div class="bento-card">
+                    <div class="bento-card__bg"></div>
+                    <div class="bento-card__content subject-card">
+                        <span class="subject-card__icon">⚛️</span>
+                        <h4 class="subject-card__title">Asignatura</h4>
+                        <p class="subject-card__name">Física Aplicada</p>
+                        <span class="subject-card__code">PCEI5-002</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

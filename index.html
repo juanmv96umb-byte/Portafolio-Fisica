@@ -7,12 +7,19 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚛</text></svg>">
     <meta name="description" content="Portafolio de Física Aplicada — Universidad Central del Ecuador">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin></script>
 </head>
 <body>
+
+    <!-- Ambient Glowing Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="ambient-orb ambient-orb--1"></div>
+        <div class="ambient-orb ambient-orb--2"></div>
+        <div class="ambient-orb ambient-orb--3"></div>
+    </div>
 
     <!-- ─── Top Navigation ─── -->
     <nav class="top-nav" id="topNav" aria-label="Navegación principal">
@@ -21,9 +28,15 @@
                 <span class="top-nav__logo-icon">⚛</span>
                 <span class="top-nav__logo-text">Física Aplicada</span>
             </a>
-            <button class="top-nav__toggle" id="navToggle" aria-label="Menú" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
+            <div class="top-nav__right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+                    <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                </button>
+                <button class="top-nav__toggle" id="navToggle" aria-label="Menú" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
             <ul class="top-nav__links" id="navLinks">
                 <li><a href="#hero" class="top-nav__link">Inicio</a></li>
                 <li><a href="#rubrica" class="top-nav__link">Rúbrica</a></li>

@@ -155,12 +155,15 @@
        RENDER: DOCUMENT CARD
     ═══════════════════════════════════════════ */
 
-    function renderDocCard(item) {
+    function renderDocCard(item, index) {
         var faved = isFav(item.file);
         var card = document.createElement('div');
         card.className = 'doc-card';
         card.dataset.file = item.file;
         card.dataset.search = (item.title + ' ' + (item.type || '')).toLowerCase();
+        if (typeof index === 'number') {
+            card.style.animationDelay = (index * 40) + 'ms';
+        }
 
         card.innerHTML =
             '<div class="doc-card__thumb doc-card__thumb--loading"><div class="doc-card__thumb-placeholder">' + S.pdf + '</div></div>' +
@@ -189,12 +192,15 @@
        RENDER: RESOURCE CARD
     ═══════════════════════════════════════════ */
 
-    function renderResCard(item) {
+    function renderResCard(item, index) {
         var a = document.createElement('a');
         a.className = 'resource-card';
         a.href = item.file;
         a.target = '_blank';
         a.rel = 'noopener';
+        if (typeof index === 'number') {
+            a.style.animationDelay = (index * 40) + 'ms';
+        }
         a.innerHTML =
             '<div class="resource-card__icon">' + (RES_ICONS[item.icon] || S.book) + '</div>' +
             '<div class="resource-card__info">' +
@@ -226,11 +232,11 @@
             return;
         }
         var frag = document.createDocumentFragment();
-        items.forEach(function (item) {
+        items.forEach(function (item, index) {
             if (item.desc !== undefined) {
-                frag.appendChild(renderResCard(item));
+                frag.appendChild(renderResCard(item, index));
             } else {
-                frag.appendChild(renderDocCard(item));
+                frag.appendChild(renderDocCard(item, index));
             }
         });
         grid.appendChild(frag);
@@ -484,7 +490,7 @@
         $$('[data-section]').forEach(function (s) { obs.observe(s); });
     }
 
-    /* ═══════════════════════════════════════════
+    /* ════════════════════════════════════════════════════
        NAV SCROLL SPY
     ═══════════════════════════════════════════ */
 
@@ -551,6 +557,31 @@
     }
 
     /* ═══════════════════════════════════════════
+       THEME SYSTEM
+    ═══════════════════════════════════════════ */
+
+    function setupTheme() {
+        var toggle = document.getElementById('themeToggle');
+        if (!toggle) return;
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            toggle.setAttribute('aria-label', theme === 'dark' ? 'Activar tema claro' : 'Activar tema oscuro');
+        }
+
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var currentTheme = saved || (prefersDark ? 'dark' : 'light');
+        applyTheme(currentTheme);
+
+        toggle.addEventListener('click', function () {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            applyTheme(isDark ? 'light' : 'dark');
+        });
+    }
+
+    /* ═══════════════════════════════════════════
        INIT
     ═══════════════════════════════════════════ */
 
@@ -576,6 +607,7 @@
         setupScrollSpy();
 
         // 6. UI
+        setupTheme();
         setupNavToggle();
         setupScrollTop();
     }
